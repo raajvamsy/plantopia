@@ -64,7 +64,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Mock authentication - in real app, this would call your backend
-      if (email && password.length >= 6) {
+      if (email && password.length >= 8) {
         const userData: User = {
           id: '1',
           email,
@@ -108,7 +108,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Mock signup - replace with actual logic
-      if (email && password.length >= 6 && username) {
+      if (email && password.length >= 8 && username) {
         const userData: User = {
           id: Date.now().toString(),
           email,

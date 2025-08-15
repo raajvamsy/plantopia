@@ -6,7 +6,8 @@ import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
 import { useThemeColors } from '@/lib/theme/hooks';
 import { cn } from '@/lib/utils';
-import { EyeIcon, EyeOffIcon, Loader2 } from 'lucide-react';
+import { EyeIcon, EyeOffIcon, Loader2, Check, X } from 'lucide-react';
+import { PasswordStrength } from '@/components/ui/password-strength';
 
 interface FormData {
   email: string;
@@ -63,8 +64,8 @@ export default function SignupPage() {
 
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
     }
 
     if (!formData.confirmPassword) {
@@ -93,7 +94,7 @@ export default function SignupPage() {
       } else {
         setErrors({ general: result.error || 'Signup failed' });
       }
-    } catch (error) {
+    } catch {
       setErrors({ general: 'An unexpected error occurred' });
     } finally {
       setIsLoading(false);
@@ -102,8 +103,30 @@ export default function SignupPage() {
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Clear existing error for this field
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
+    }
+    
+    // Real-time password matching validation
+    if (field === 'confirmPassword') {
+      const currentPassword = formData.password;
+      if (value && currentPassword && value !== currentPassword) {
+        setErrors(prev => ({ ...prev, confirmPassword: 'Passwords do not match' }));
+      } else if (value && currentPassword && value === currentPassword) {
+        setErrors(prev => ({ ...prev, confirmPassword: undefined }));
+      }
+    }
+    
+    // Also check confirm password when main password changes
+    if (field === 'password') {
+      const currentConfirmPassword = formData.confirmPassword;
+      if (currentConfirmPassword && value && currentConfirmPassword !== value) {
+        setErrors(prev => ({ ...prev, confirmPassword: 'Passwords do not match' }));
+      } else if (currentConfirmPassword && value && currentConfirmPassword === value) {
+        setErrors(prev => ({ ...prev, confirmPassword: undefined }));
+      }
     }
   };
 
@@ -177,34 +200,40 @@ export default function SignupPage() {
             {errors.username && <p className="mt-1 text-sm text-destructive">{errors.username}</p>}
           </div>
 
-          <div className="relative">
-            <input
-              type={showPassword ? 'text' : 'password'}
-              required
-              value={formData.password}
-              onChange={(e) => handleInputChange('password', e.target.value)}
-              className={cn(
-                "block w-full rounded-full border-2 px-5 py-4 pr-12 text-lg transition duration-300",
-                "bg-muted/50 text-foreground placeholder-muted-foreground",
-                "focus:outline-none focus:ring-2 focus:ring-offset-2",
-                errors.password 
-                  ? "border-destructive focus:border-destructive focus:ring-destructive" 
-                  : "border-transparent focus:border-primary focus:ring-primary",
-              )}
-              placeholder="Password"
-            />
-            <button
-              type="button"
-              className="absolute inset-y-0 right-0 flex items-center pr-4"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? (
-                <EyeOffIcon className="h-5 w-5 text-muted-foreground" />
-              ) : (
-                <EyeIcon className="h-5 w-5 text-muted-foreground" />
-              )}
-            </button>
+          <div className="space-y-0">
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                value={formData.password}
+                onChange={(e) => handleInputChange('password', e.target.value)}
+                className={cn(
+                  "block w-full rounded-full border-2 px-5 py-4 pr-12 text-lg transition duration-300 relative z-10",
+                  "bg-muted/50 text-foreground placeholder-muted-foreground",
+                  "focus:outline-none focus:ring-2 focus:ring-offset-2",
+                  errors.password 
+                    ? "border-destructive focus:border-destructive focus:ring-destructive" 
+                    : "border-transparent focus:border-primary focus:ring-primary",
+                )}
+                placeholder="Password"
+              />
+              <button
+                type="button"
+                className="absolute top-1/2 -translate-y-1/2 right-2 flex items-center justify-center w-8 h-8 hover:opacity-70 transition-opacity z-20"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <EyeOffIcon className="h-5 w-5 text-muted-foreground" />
+                ) : (
+                  <EyeIcon className="h-5 w-5 text-muted-foreground" />
+                )}
+              </button>
+            </div>
+            
             {errors.password && <p className="mt-1 text-sm text-destructive">{errors.password}</p>}
+            
+            {/* Password Strength Indicator */}
+            <PasswordStrength password={formData.password} />
           </div>
 
           <div className="relative">
@@ -214,18 +243,42 @@ export default function SignupPage() {
               value={formData.confirmPassword}
               onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
               className={cn(
-                "block w-full rounded-full border-2 px-5 py-4 pr-12 text-lg transition duration-300",
+                "block w-full rounded-full border-2 px-5 py-4 text-lg transition duration-300 relative z-10",
                 "bg-muted/50 text-foreground placeholder-muted-foreground",
                 "focus:outline-none focus:ring-2 focus:ring-offset-2",
+                // Dynamic styling based on password match status
                 errors.confirmPassword 
                   ? "border-destructive focus:border-destructive focus:ring-destructive" 
+                  : formData.confirmPassword && formData.password && formData.confirmPassword === formData.password
+                  ? ""
                   : "border-transparent focus:border-primary focus:ring-primary",
+                // Add consistent right padding for icons
+                formData.confirmPassword && formData.password ? "pr-24" : "pr-12",
               )}
+              style={{
+                ...(formData.confirmPassword && formData.password && formData.confirmPassword === formData.password && !errors.confirmPassword ? {
+                  borderColor: themeColors.sage,
+                  '--tw-ring-color': themeColors.sage,
+                } : {})
+              }}
               placeholder="Confirm Password"
             />
+            
+            {/* Password Match Indicator */}
+            {formData.confirmPassword && formData.password && (
+              <div className="absolute top-1/3 -translate-y-1/3 right-12 flex items-center justify-center w-8 h-8 z-20 pointer-events-none">
+                {formData.confirmPassword === formData.password ? (
+                  <Check className="h-5 w-5" style={{ color: themeColors.sage }} />
+                ) : (
+                  <X className="h-5 w-5 text-destructive" />
+                )}
+              </div>
+            )}
+            
+            {/* Eye Icon */}
             <button
               type="button"
-              className="absolute inset-y-0 right-0 flex items-center pr-4"
+              className={`absolute ${formData.confirmPassword && formData.password ? 'top-1/3 -translate-y-1/3' : 'top-1/2 -translate-y-1/2'} right-2 grid place-items-center w-8 h-8 hover:opacity-70 transition-opacity z-20`}
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             >
               {showConfirmPassword ? (
@@ -234,7 +287,22 @@ export default function SignupPage() {
                 <EyeIcon className="h-5 w-5 text-muted-foreground" />
               )}
             </button>
-            {errors.confirmPassword && <p className="mt-1 text-sm text-destructive">{errors.confirmPassword}</p>}
+            
+            {/* Error Message */}
+            {errors.confirmPassword && (
+              <p className="mt-1 text-sm text-destructive flex items-center space-x-2">
+                <X className="h-3 w-3 flex-shrink-0" />
+                <span>{errors.confirmPassword}</span>
+              </p>
+            )}
+            
+            {/* Success Message */}
+            {formData.confirmPassword && formData.password && formData.confirmPassword === formData.password && !errors.confirmPassword && (
+              <p className="mt-1 text-sm flex items-center space-x-2" style={{ color: themeColors.sage }}>
+                <Check className="h-3 w-3 flex-shrink-0" />
+                <span>Passwords match</span>
+              </p>
+            )}
           </div>
 
           <button

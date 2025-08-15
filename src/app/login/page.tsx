@@ -56,8 +56,8 @@ export default function LoginPage() {
 
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
     }
 
     setErrors(newErrors);
@@ -172,7 +172,7 @@ export default function LoginPage() {
               value={formData.password}
               onChange={(e) => handleInputChange('password', e.target.value)}
               className={cn(
-                "block w-full rounded-full border-2 px-5 py-4 pr-12 text-lg transition duration-300",
+                "block w-full rounded-full border-2 px-5 py-4 pr-12 text-lg transition duration-300 relative z-10",
                 "bg-muted/50 text-foreground placeholder-muted-foreground",
                 "focus:outline-none focus:ring-2 focus:ring-offset-2",
                 errors.password 
@@ -183,7 +183,7 @@ export default function LoginPage() {
             />
             <button
               type="button"
-              className="absolute inset-y-0 right-0 flex items-center pr-4"
+              className="absolute inset-y-0 right-0 flex items-center pr-4 z-20"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? (
