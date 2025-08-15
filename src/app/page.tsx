@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { usePlantColors, useThemeColors } from '@/lib/theme/hooks';
 import { cn } from '@/lib/utils';
 import { Separator } from '@radix-ui/react-separator';
@@ -190,7 +191,8 @@ export default function Home() {
               {/* CTA Buttons */}
               <div className="flex justify-center pb-12 md:pb-16">
                 <div className="flex flex-col sm:flex-row w-full max-w-md gap-4 px-4">
-                  <button 
+                  <Link 
+                    href="/signup"
                     className="flex w-full items-center justify-center rounded-full h-12 px-6 text-base font-bold tracking-wide shadow-md hover:bg-opacity-90 transition-all duration-300 transform hover:scale-105"
                     style={{ 
                       backgroundColor: themeColors.sage, 
@@ -198,10 +200,13 @@ export default function Home() {
                     }}
                   >
                     <span className="truncate">Register</span>
-                  </button>
-                  <button className="flex w-full items-center justify-center rounded-full h-12 px-6 bg-secondary text-secondary-foreground text-base font-bold tracking-wide shadow-md hover:bg-opacity-90 transition-all duration-300 transform hover:scale-105 border border-border">
+                  </Link>
+                  <Link 
+                    href="/login"
+                    className="flex w-full items-center justify-center rounded-full h-12 px-6 bg-secondary text-secondary-foreground text-base font-bold tracking-wide shadow-md hover:bg-opacity-90 transition-all duration-300 transform hover:scale-105 border border-border"
+                  >
                     <span className="truncate">Log In</span>
-                  </button>
+                  </Link>
                 </div>
               </div>
 
