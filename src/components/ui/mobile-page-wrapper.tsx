@@ -47,7 +47,7 @@ const MobilePageWrapper = React.forwardRef<HTMLDivElement, MobilePageWrapperProp
         className={cn(
           'flex-1 relative',
           paddingTopClasses[paddingTop],
-          hasBottomNav ? 'pb-16 sm:pb-20' : paddingBottomClasses[paddingBottom]
+          hasBottomNav ? 'sm:pb-20' : paddingBottomClasses[paddingBottom]
         )}
       >
         {children}

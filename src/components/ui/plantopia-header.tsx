@@ -12,6 +12,7 @@ import {
   Search,
   MessageCircle
 } from 'lucide-react';
+import { LeftNavigationTrigger } from './left-navigation';
 import { cn } from '@/lib/utils';
 
 type PageType = 'dashboard' | 'plants' | 'plant' | 'capture' | 'settings' | 'profile' | 'community';
@@ -91,6 +92,11 @@ export default function PlantopiaHeader({
     )}>
       {/* Left Section */}
       <div className="flex items-center gap-3">
+        {/* Hamburger Menu - Mobile Only */}
+        <div className="sm:hidden">
+          <LeftNavigationTrigger />
+        </div>
+        
         {showBackButton && (
           <button
             onClick={handleBack}
@@ -117,47 +123,59 @@ export default function PlantopiaHeader({
 
       {/* Right Section */}
       <div className="flex items-center gap-2">
-        {config.rightIcons.map((iconType) => {
-          const IconComponent = iconComponents[iconType as keyof typeof iconComponents];
-          return (
-            <button
-              key={iconType}
-              onClick={() => {
-                if (iconType === 'calendar') {
-                  handleNavigation('dashboard');
-                } else if (iconType === 'search') {
-                  // Focus search input if available, or handle search action
-                  const searchInput = document.getElementById('search');
-                  if (searchInput) {
-                    searchInput.focus();
+        {/* Desktop Navigation Icons - Hidden on Mobile */}
+        <div className="hidden sm:flex items-center gap-2">
+          {config.rightIcons.map((iconType) => {
+            const IconComponent = iconComponents[iconType as keyof typeof iconComponents];
+            return (
+              <button
+                key={iconType}
+                onClick={() => {
+                  if (iconType === 'calendar') {
+                    handleNavigation('dashboard');
+                  } else if (iconType === 'search') {
+                    // Focus search input if available, or handle search action
+                    const searchInput = document.getElementById('search');
+                    if (searchInput) {
+                      searchInput.focus();
+                    }
+                  } else if (iconType === 'message') {
+                    // Could navigate to messages page when implemented
+                    console.log('Messages functionality to be implemented');
+                  } else {
+                    handleNavigation(iconType);
                   }
-                } else if (iconType === 'message') {
-                  // Could navigate to messages page when implemented
-                  console.log('Messages functionality to be implemented');
-                } else {
-                  handleNavigation(iconType);
-                }
-              }}
-              className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-secondary text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              <IconComponent className="h-4 w-4 sm:h-5 sm:w-5" />
-            </button>
-          );
-        })}
+                }}
+                className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-secondary text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <IconComponent className="h-4 w-4 sm:h-5 sm:w-5" />
+              </button>
+            );
+          })}
+        </div>
         
-        {/* User Avatar */}
+        {/* User Avatar - Always Visible */}
         <button
           onClick={() => handleNavigation('profile')}
-          className="h-8 w-8 sm:h-10 sm:w-10 rounded-full overflow-hidden ring-2 ring-primary/20 hover:ring-primary/40 transition-all"
+          className="relative group"
         >
           <div 
-            className="w-full h-full flex items-center justify-center text-white font-bold text-xs sm:text-sm"
+            className="h-8 w-8 sm:h-10 sm:w-10 rounded-full flex items-center justify-center text-white font-semibold text-xs sm:text-sm shadow-md ring-2 ring-white/10 hover:ring-white/20 transition-all duration-200 group-hover:scale-105 group-hover:shadow-lg"
             style={{ 
-              background: `linear-gradient(135deg, ${colors.sage} 0%, ${colors.mint} 100%)`
+              background: `linear-gradient(135deg, ${colors.sage} 0%, ${colors.mint} 50%, ${colors.sage} 100%)`,
+              boxShadow: `0 2px 8px ${colors.sage}20, inset 0 1px 0 rgba(255, 255, 255, 0.1)`
             }}
           >
             {userName.charAt(0).toUpperCase()}
           </div>
+          
+          {/* Subtle glow effect on hover */}
+          <div 
+            className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-30 transition-opacity duration-200 blur-sm"
+            style={{ 
+              background: `linear-gradient(135deg, ${colors.sage} 0%, ${colors.mint} 100%)`
+            }}
+          />
         </button>
       </div>
     </header>

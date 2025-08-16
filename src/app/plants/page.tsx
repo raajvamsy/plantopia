@@ -242,7 +242,7 @@ export default function PlantsPage() {
   return (
     <MobilePageWrapper>
       <PlantopiaHeader currentPage="plants" />
-      <ResponsiveContainer maxWidth="6xl" padding="lg" className="py-4 sm:py-8 min-h-full">
+      <ResponsiveContainer maxWidth="4xl" padding="lg" className="py-4 sm:py-8 min-h-full">
           {/* Page Header */}
           <div className="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <h2 className="text-foreground text-3xl font-bold lg:text-4xl">My Plants</h2>

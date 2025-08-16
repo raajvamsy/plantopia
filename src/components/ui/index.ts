@@ -8,6 +8,7 @@ export { default as TabNavigation } from './tab-navigation';
 export { default as LeafSpinner, AIAnalyzingSpinner, LoadingSpinner, PlantingSpinner } from './leaf-spinner';
 export { default as FullPageLoader, PlantopiaLoader } from './full-page-loader';
 export { default as PlantopiaHeader } from './plantopia-header';
+export { LeftNavigation, LeftNavigationTrigger } from './left-navigation';
 
 // Radix UI based components
 export { Button } from './button';
