@@ -163,3 +163,90 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  /* Plant color utilities */
+  .text-sage { color: var(--plantopia-sage); }
+  .bg-sage { background-color: var(--plantopia-sage); }
+  .border-sage { border-color: var(--plantopia-sage); }
+  
+  .text-mint { color: var(--plantopia-mint); }
+  .bg-mint { background-color: var(--plantopia-mint); }
+  .border-mint { border-color: var(--plantopia-mint); }
+  
+  .text-moss { color: var(--plantopia-moss); }
+  .bg-moss { background-color: var(--plantopia-moss); }
+  .border-moss { border-color: var(--plantopia-moss); }
+  
+  .text-fern { color: var(--plantopia-fern); }
+  .bg-fern { background-color: var(--plantopia-fern); }
+  .border-fern { border-color: var(--plantopia-fern); }
+  
+  .text-leaf { color: var(--plantopia-leaf); }
+  .bg-leaf { background-color: var(--plantopia-leaf); }
+  .border-leaf { border-color: var(--plantopia-leaf); }
+  
+  .text-earth { color: var(--plantopia-earth); }
+  .bg-earth { background-color: var(--plantopia-earth); }
+  .border-earth { border-color: var(--plantopia-earth); }
+  
+  .text-bark { color: var(--plantopia-bark); }
+  .bg-bark { background-color: var(--plantopia-bark); }
+  .border-bark { border-color: var(--plantopia-bark); }
+  
+  .text-stone { color: var(--plantopia-stone); }
+  .bg-stone { background-color: var(--plantopia-stone); }
+  .border-stone { border-color: var(--plantopia-stone); }
+  
+  .text-sky { color: var(--plantopia-sky); }
+  .bg-sky { background-color: var(--plantopia-sky); }
+  .border-sky { border-color: var(--plantopia-sky); }
+  
+  .text-water { color: var(--plantopia-water); }
+  .bg-water { background-color: var(--plantopia-water); }
+  .border-water { border-color: var(--plantopia-water); }
+
+  /* Hide scrollbars but keep functionality */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Icon fill utilities */
+  .fill-current {
+    fill: currentColor;
+  }
+  .fill-none {
+    fill: none;
+  }
+
+  /* Safe area utilities for mobile devices */
+  .safe-area-inset {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+  
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Mobile specific improvements */
+  @media (max-width: 640px) {
+    /* Prevent horizontal scrolling */
+    body {
+      overflow-x: hidden;
+    }
+    
+    /* Ensure touch targets are at least 44px */
+    button, a {
+      min-height: 44px;
+    }
+  }
+}

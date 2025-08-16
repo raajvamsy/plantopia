@@ -104,7 +104,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden p-4 bg-muted/30">
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden p-3 sm:p-4 bg-muted/30 safe-area-inset">
       {/* Background watermark */}
       <div 
         className="absolute inset-0 opacity-5"
@@ -116,10 +116,10 @@ export default function LoginPage() {
       />
       
       {/* Login Form */}
-      <div className="relative z-10 w-full max-w-md space-y-6 rounded-3xl bg-card/90 p-8 shadow-2xl backdrop-blur-md border border-border">
+      <div className="relative z-10 w-full max-w-sm sm:max-w-md space-y-4 sm:space-y-6 rounded-2xl sm:rounded-3xl bg-card/90 p-6 sm:p-8 shadow-2xl backdrop-blur-md border border-border">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-foreground">Welcome Back!</h1>
-          <p className="mt-2 text-muted-foreground">Let's get back to growing.</p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">Welcome Back!</h1>
+          <p className="mt-1 sm:mt-2 text-sm sm:text-base text-muted-foreground">Let's get back to growing.</p>
         </div>
 
         {errors.general && (
@@ -128,7 +128,7 @@ export default function LoginPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           {/* Email/Username Input */}
           <div>
             <Label.Root htmlFor="email" className="sr-only">
@@ -143,18 +143,17 @@ export default function LoginPage() {
               value={formData.email}
               onChange={(e) => handleInputChange('email', e.target.value)}
               className={cn(
-                "block w-full rounded-full border-2 px-5 py-4 text-lg transition duration-300",
+                "block w-full rounded-full border-2 px-4 sm:px-5 py-3 sm:py-4 text-base sm:text-lg transition duration-300",
                 "bg-muted/50 text-foreground placeholder-muted-foreground",
                 "focus:outline-none focus:ring-2 focus:ring-offset-2",
                 errors.email 
                   ? "border-destructive focus:border-destructive focus:ring-destructive" 
                   : "border-transparent focus:border-primary focus:ring-primary",
               )}
-
               placeholder="Email or Username"
             />
             {errors.email && (
-              <p className="mt-1 text-sm text-destructive">{errors.email}</p>
+              <p className="mt-1 text-xs sm:text-sm text-destructive">{errors.email}</p>
             )}
           </div>
 
@@ -172,7 +171,7 @@ export default function LoginPage() {
               value={formData.password}
               onChange={(e) => handleInputChange('password', e.target.value)}
               className={cn(
-                "block w-full rounded-full border-2 px-5 py-4 pr-12 text-lg transition duration-300 relative z-10",
+                "block w-full rounded-full border-2 px-4 sm:px-5 py-3 sm:py-4 pr-10 sm:pr-12 text-base sm:text-lg transition duration-300 relative z-10",
                 "bg-muted/50 text-foreground placeholder-muted-foreground",
                 "focus:outline-none focus:ring-2 focus:ring-offset-2",
                 errors.password 
@@ -183,29 +182,29 @@ export default function LoginPage() {
             />
             <button
               type="button"
-              className="absolute inset-y-0 right-0 flex items-center pr-4 z-20"
+              className="absolute inset-y-0 right-0 flex items-center pr-3 sm:pr-4 z-20"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? (
-                <EyeOffIcon className="h-5 w-5 text-muted-foreground" />
+                <EyeOffIcon className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
               ) : (
-                <EyeIcon className="h-5 w-5 text-muted-foreground" />
+                <EyeIcon className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
               )}
             </button>
             {errors.password && (
-              <p className="mt-1 text-sm text-destructive">{errors.password}</p>
+              <p className="mt-1 text-xs sm:text-sm text-destructive">{errors.password}</p>
             )}
           </div>
 
           {/* Remember Me & Forgot Password */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <div className="flex items-center space-x-2">
               <Checkbox.Root
                 id="remember-me"
                 checked={formData.rememberMe}
                 onCheckedChange={(checked) => handleInputChange('rememberMe', checked === true)}
                 className={cn(
-                  "flex h-5 w-5 items-center justify-center rounded border-2 transition-colors",
+                  "flex h-4 w-8 sm:h-5 sm:w-5 items-center justify-center rounded border-2 transition-colors",
                   "data-[state=checked]:text-primary-foreground",
                   "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                 )}
@@ -215,19 +214,19 @@ export default function LoginPage() {
                 }}
               >
                 <Checkbox.Indicator>
-                  <CheckIcon className="h-3 w-3" style={{ color: themeColors.primaryForeground }} />
+                  <CheckIcon className="h-2.5 w-2.5 sm:h-3 sm:w-3" style={{ color: themeColors.primaryForeground }} />
                 </Checkbox.Indicator>
               </Checkbox.Root>
               <Label.Root 
                 htmlFor="remember-me" 
-                className="text-sm text-muted-foreground cursor-pointer"
+                className="text-xs sm:text-sm text-muted-foreground cursor-pointer"
               >
                 Remember me
               </Label.Root>
             </div>
             <Link 
               href="/forgot-password" 
-              className="text-sm font-medium hover:underline"
+              className="text-xs sm:text-sm font-medium hover:underline"
               style={{ color: themeColors.sage }}
             >
               Forgot password?
@@ -239,7 +238,7 @@ export default function LoginPage() {
             type="submit"
             disabled={isLoading}
             className={cn(
-              "flex w-full justify-center items-center rounded-full px-4 py-4 text-lg font-bold shadow-lg",
+              "flex w-full justify-center items-center rounded-full px-4 py-3 sm:py-4 text-base sm:text-lg font-bold shadow-lg min-h-[44px]",
               "transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2",
               "disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none",
               "text-white"
@@ -250,7 +249,7 @@ export default function LoginPage() {
           >
             {isLoading ? (
               <>
-                <Loader2 className="animate-spin mr-2" size={20} />
+                <Loader2 className="animate-spin mr-2" size={18} />
                 Logging In...
               </>
             ) : (
@@ -260,7 +259,7 @@ export default function LoginPage() {
         </form>
 
         {/* Sign Up Link */}
-        <p className="text-center text-sm text-muted-foreground">
+        <p className="text-center text-xs sm:text-sm text-muted-foreground">
           Don't have an account?{' '}
           <Link 
             href="/signup" 

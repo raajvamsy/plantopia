@@ -139,7 +139,7 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden p-4 bg-muted/30">
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden p-3 sm:p-4 bg-muted/30 safe-area-inset">
       <div 
         className="absolute inset-0 opacity-5"
         style={{
@@ -149,10 +149,10 @@ export default function SignupPage() {
         }}
       />
       
-      <div className="relative z-10 w-full max-w-md space-y-6 rounded-3xl bg-card/90 p-8 shadow-2xl backdrop-blur-md border border-border">
+      <div className="relative z-10 w-full max-w-sm sm:max-w-md space-y-4 sm:space-y-6 rounded-2xl sm:rounded-3xl bg-card/90 p-6 sm:p-8 shadow-2xl backdrop-blur-md border border-border">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-foreground">Join Plantopia!</h1>
-          <p className="mt-2 text-muted-foreground">Start your plant journey today.</p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">Join Plantopia!</h1>
+          <p className="mt-1 sm:mt-2 text-sm sm:text-base text-muted-foreground">Start your plant journey today.</p>
         </div>
 
         {errors.general && (
@@ -161,7 +161,7 @@ export default function SignupPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <div>
             <input
               type="email"
@@ -169,7 +169,7 @@ export default function SignupPage() {
               value={formData.email}
               onChange={(e) => handleInputChange('email', e.target.value)}
               className={cn(
-                "block w-full rounded-full border-2 px-5 py-4 text-lg transition duration-300",
+                "block w-full rounded-full border-2 px-4 sm:px-5 py-3 sm:py-4 text-base sm:text-lg transition duration-300",
                 "bg-muted/50 text-foreground placeholder-muted-foreground",
                 "focus:outline-none focus:ring-2 focus:ring-offset-2",
                 errors.email 
@@ -178,7 +178,7 @@ export default function SignupPage() {
               )}
               placeholder="Email"
             />
-            {errors.email && <p className="mt-1 text-sm text-destructive">{errors.email}</p>}
+            {errors.email && <p className="mt-1 text-xs sm:text-sm text-destructive">{errors.email}</p>}
           </div>
 
           <div>
@@ -188,7 +188,7 @@ export default function SignupPage() {
               value={formData.username}
               onChange={(e) => handleInputChange('username', e.target.value)}
               className={cn(
-                "block w-full rounded-full border-2 px-5 py-4 text-lg transition duration-300",
+                "block w-full rounded-full border-2 px-4 sm:px-5 py-3 sm:py-4 text-base sm:text-lg transition duration-300",
                 "bg-muted/50 text-foreground placeholder-muted-foreground",
                 "focus:outline-none focus:ring-2 focus:ring-offset-2",
                 errors.username 
@@ -197,7 +197,7 @@ export default function SignupPage() {
               )}
               placeholder="Username"
             />
-            {errors.username && <p className="mt-1 text-sm text-destructive">{errors.username}</p>}
+            {errors.username && <p className="mt-1 text-xs sm:text-sm text-destructive">{errors.username}</p>}
           </div>
 
           <div className="space-y-0">
@@ -208,7 +208,7 @@ export default function SignupPage() {
                 value={formData.password}
                 onChange={(e) => handleInputChange('password', e.target.value)}
                 className={cn(
-                  "block w-full rounded-full border-2 px-5 py-4 pr-12 text-lg transition duration-300 relative z-10",
+                  "block w-full rounded-full border-2 px-4 sm:px-5 py-3 sm:py-4 pr-10 sm:pr-12 text-base sm:text-lg transition duration-300 relative z-10",
                   "bg-muted/50 text-foreground placeholder-muted-foreground",
                   "focus:outline-none focus:ring-2 focus:ring-offset-2",
                   errors.password 
@@ -219,18 +219,18 @@ export default function SignupPage() {
               />
               <button
                 type="button"
-                className="absolute top-1/2 -translate-y-1/2 right-2 flex items-center justify-center w-8 h-8 hover:opacity-70 transition-opacity z-20"
+                className="absolute top-1/2 -translate-y-1/2 right-2 flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 hover:opacity-70 transition-opacity z-20"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (
-                  <EyeOffIcon className="h-5 w-5 text-muted-foreground" />
+                  <EyeOffIcon className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
                 ) : (
-                  <EyeIcon className="h-5 w-5 text-muted-foreground" />
+                  <EyeIcon className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
                 )}
               </button>
             </div>
             
-            {errors.password && <p className="mt-1 text-sm text-destructive">{errors.password}</p>}
+            {errors.password && <p className="mt-1 text-xs sm:text-sm text-destructive">{errors.password}</p>}
             
             {/* Password Strength Indicator */}
             <PasswordStrength password={formData.password} />
@@ -243,7 +243,7 @@ export default function SignupPage() {
               value={formData.confirmPassword}
               onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
               className={cn(
-                "block w-full rounded-full border-2 px-5 py-4 text-lg transition duration-300 relative z-10",
+                "block w-full rounded-full border-2 px-4 sm:px-5 py-3 sm:py-4 text-base sm:text-lg transition duration-300 relative z-10",
                 "bg-muted/50 text-foreground placeholder-muted-foreground",
                 "focus:outline-none focus:ring-2 focus:ring-offset-2",
                 // Dynamic styling based on password match status
@@ -253,7 +253,7 @@ export default function SignupPage() {
                   ? ""
                   : "border-transparent focus:border-primary focus:ring-primary",
                 // Add consistent right padding for icons
-                formData.confirmPassword && formData.password ? "pr-24" : "pr-12",
+                formData.confirmPassword && formData.password ? "pr-16 sm:pr-20 md:pr-24" : "pr-10 sm:pr-12",
               )}
               style={{
                 ...(formData.confirmPassword && formData.password && formData.confirmPassword === formData.password && !errors.confirmPassword ? {
@@ -266,11 +266,11 @@ export default function SignupPage() {
             
             {/* Password Match Indicator */}
             {formData.confirmPassword && formData.password && (
-              <div className="absolute top-1/3 -translate-y-1/3 right-12 flex items-center justify-center w-8 h-8 z-20 pointer-events-none">
+              <div className="absolute top-1/2 -translate-y-1/2 right-8 sm:right-10 md:right-12 flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 z-20 pointer-events-none">
                 {formData.confirmPassword === formData.password ? (
-                  <Check className="h-5 w-5" style={{ color: themeColors.sage }} />
+                  <Check className="h-4 w-4 sm:h-5 sm:w-5" style={{ color: themeColors.sage }} />
                 ) : (
-                  <X className="h-5 w-5 text-destructive" />
+                  <X className="h-4 w-4 sm:h-5 sm:w-5 text-destructive" />
                 )}
               </div>
             )}
@@ -278,19 +278,19 @@ export default function SignupPage() {
             {/* Eye Icon */}
             <button
               type="button"
-              className={`absolute ${formData.confirmPassword && formData.password ? 'top-1/3 -translate-y-1/3' : 'top-1/2 -translate-y-1/2'} right-2 grid place-items-center w-8 h-8 hover:opacity-70 transition-opacity z-20`}
+              className="absolute top-1/2 -translate-y-1/2 right-2 grid place-items-center w-6 h-6 sm:w-8 sm:h-8 hover:opacity-70 transition-opacity z-20"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             >
               {showConfirmPassword ? (
-                <EyeOffIcon className="h-5 w-5 text-muted-foreground" />
+                <EyeOffIcon className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
               ) : (
-                <EyeIcon className="h-5 w-5 text-muted-foreground" />
+                <EyeIcon className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
               )}
             </button>
             
             {/* Error Message */}
             {errors.confirmPassword && (
-              <p className="mt-1 text-sm text-destructive flex items-center space-x-2">
+              <p className="mt-1 text-xs sm:text-sm text-destructive flex items-center space-x-2">
                 <X className="h-3 w-3 flex-shrink-0" />
                 <span>{errors.confirmPassword}</span>
               </p>
@@ -298,7 +298,7 @@ export default function SignupPage() {
             
             {/* Success Message */}
             {formData.confirmPassword && formData.password && formData.confirmPassword === formData.password && !errors.confirmPassword && (
-              <p className="mt-1 text-sm flex items-center space-x-2" style={{ color: themeColors.sage }}>
+              <p className="mt-1 text-xs sm:text-sm flex items-center space-x-2" style={{ color: themeColors.sage }}>
                 <Check className="h-3 w-3 flex-shrink-0" />
                 <span>Passwords match</span>
               </p>
@@ -309,7 +309,7 @@ export default function SignupPage() {
             type="submit"
             disabled={isLoading}
             className={cn(
-              "flex w-full justify-center items-center rounded-full px-4 py-4 text-lg font-bold shadow-lg",
+              "flex w-full justify-center items-center rounded-full px-4 py-3 sm:py-4 text-base sm:text-lg font-bold shadow-lg min-h-[44px]",
               "transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2",
               "disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none",
               "text-white"
@@ -320,7 +320,7 @@ export default function SignupPage() {
           >
             {isLoading ? (
               <>
-                <Loader2 className="animate-spin mr-2" size={20} />
+                <Loader2 className="animate-spin mr-2" size={18} />
                 Creating Account...
               </>
             ) : (
@@ -329,7 +329,7 @@ export default function SignupPage() {
           </button>
         </form>
 
-        <p className="text-center text-sm text-muted-foreground">
+        <p className="text-center text-xs sm:text-sm text-muted-foreground">
           Already have an account?{' '}
           <Link 
             href="/login" 
