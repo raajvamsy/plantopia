@@ -14,7 +14,8 @@ import {
   User,
   Leaf,
   Settings,
-  LogOut
+  LogOut,
+  MessageCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -54,6 +55,13 @@ const navItems: NavItem[] = [
     label: 'Community',
     icon: Users,
     href: '/community',
+    section: 'main'
+  },
+  {
+    id: 'messages',
+    label: 'Messages',
+    icon: MessageCircle,
+    href: '/messages',
     section: 'main'
   },
   // Action items
@@ -241,7 +249,9 @@ export function LeftNavigation({ isOpen, onClose }: LeftNavigationNavProps) {
             <div className="space-y-1">
               {navItems.filter(item => item.section === 'main').map((item) => {
                 const Icon = item.icon;
-                const isActive = pathname === item.href || (item.href === '/plants' && pathname?.startsWith('/plants'));
+                const isActive = pathname === item.href || 
+                  (item.href === '/plants' && pathname?.startsWith('/plants')) ||
+                  (item.href === '/messages' && pathname?.startsWith('/messages'));
 
                 return (
                   <button

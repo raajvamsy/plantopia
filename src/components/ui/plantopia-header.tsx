@@ -140,8 +140,7 @@ export default function PlantopiaHeader({
                       searchInput.focus();
                     }
                   } else if (iconType === 'message') {
-                    // Could navigate to messages page when implemented
-                    console.log('Messages functionality to be implemented');
+                    handleNavigation('messages');
                   } else {
                     handleNavigation(iconType);
                   }

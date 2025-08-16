@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Home, Camera, Users, User, Leaf } from 'lucide-react';
+import { Home, Camera, Users, Leaf, MessageCircle } from 'lucide-react';
 import { usePlantColors } from '@/lib/theme';
 import { cn } from '@/lib/utils';
 
@@ -39,10 +39,10 @@ const navItems: NavItem[] = [
     href: '/community',
   },
   {
-    id: 'profile',
-    label: 'Profile',
-    icon: User,
-    href: '/profile',
+    id: 'messages',
+    label: 'Messages',
+    icon: MessageCircle,
+    href: '/messages',
   },
 ];
 
@@ -60,7 +60,9 @@ export default function BottomNavigation() {
       <nav className="flex justify-around items-center h-full max-w-4xl mx-auto px-2 sm:px-4">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href || (item.href === '/plants' && pathname?.startsWith('/plants'));
+          const isActive = pathname === item.href || 
+            (item.href === '/plants' && pathname?.startsWith('/plants')) ||
+            (item.href === '/messages' && pathname?.startsWith('/messages'));
 
           return (
             <button
