@@ -2,32 +2,17 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { Users, ArrowLeft } from 'lucide-react';
+import { Users } from 'lucide-react';
 import { usePlantColors } from '@/lib/theme';
 import BottomNavigation from '@/components/ui/bottom-navigation';
+import PlantopiaHeader from '@/components/ui/plantopia-header';
 
 export default function CommunityPage() {
-  const router = useRouter();
   const colors = usePlantColors();
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <header className="bg-card border-b border-border">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <button
-              onClick={() => router.back()}
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <ArrowLeft className="h-5 w-5" />
-              <span>Back</span>
-            </button>
-            <h1 className="text-foreground text-xl font-bold">Community</h1>
-            <div className="w-16" /> {/* Spacer for centering */}
-          </div>
-        </div>
-      </header>
+      <PlantopiaHeader currentPage="community" showBackButton={true} />
 
       {/* Main Content */}
       <main className="flex-1 flex items-center justify-center p-8">

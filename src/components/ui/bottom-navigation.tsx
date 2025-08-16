@@ -56,8 +56,8 @@ export default function BottomNavigation() {
   };
 
   return (
-    <footer className="sticky bottom-0 bg-background/90 backdrop-blur-sm border-t border-border mt-auto z-50">
-      <nav className="flex justify-around items-center h-16 sm:h-20 max-w-4xl mx-auto px-2 sm:px-4">
+    <footer className="fixed bottom-0 left-0 right-0 z-50 h-16 sm:h-20 bg-background/90 backdrop-blur-sm border-t border-border">
+      <nav className="flex justify-around items-center h-full max-w-4xl mx-auto px-2 sm:px-4">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href || (item.href === '/plants' && pathname?.startsWith('/plants'));

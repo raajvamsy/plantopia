@@ -13,7 +13,7 @@ interface PlantopiaThemeProviderProps {
 
 export const PlantopiaThemeProvider: React.FC<PlantopiaThemeProviderProps> = ({
   children,
-  defaultMode = 'system',
+  defaultMode = 'light',
 }) => {
   const [themeMode, setThemeMode] = useState<ThemeMode>(defaultMode);
   const [currentTheme, setCurrentTheme] = useState<PlantopiaTheme>(defaultTheme);
@@ -88,6 +88,9 @@ export const PlantopiaThemeProvider: React.FC<PlantopiaThemeProviderProps> = ({
       const savedTheme = localStorage.getItem('plantopia-theme') as ThemeMode;
       if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
         setThemeMode(savedTheme);
+      } else {
+        // Default to light theme if no saved preference
+        setThemeMode('light');
       }
     }
   }, []);

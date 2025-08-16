@@ -6,7 +6,6 @@ import { useAuth } from '@/lib/auth';
 import { usePlantColors } from '@/lib/theme';
 import { 
   Camera, 
-  ArrowLeft, 
   RotateCcw,
   Check,
   Droplets,
@@ -19,6 +18,7 @@ import {
   Star
 } from 'lucide-react';
 import BottomNavigation from '@/components/ui/bottom-navigation';
+import PlantopiaHeader from '@/components/ui/plantopia-header';
 import { LeafSpinner } from '@/components/ui';
 import { useApiCall } from '@/lib/loading';
 
@@ -271,10 +271,11 @@ export default function CapturePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
+      <PlantopiaHeader currentPage="capture" showBackButton={true} />
       <div className="flex h-full grow flex-col">
         <div className="flex flex-1 justify-center">
-          <div className="flex w-full max-w-md flex-col bg-white min-h-screen">
+          <div className="flex w-full max-w-md flex-col bg-card min-h-0">
             {/* Camera/Photo Section */}
             <div className="relative w-full">
               <div className="relative aspect-[3/4] bg-gray-900 overflow-hidden">

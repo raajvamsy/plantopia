@@ -75,7 +75,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <PlantopiaThemeProvider defaultMode="system">
+        <PlantopiaThemeProvider defaultMode="light">
           <LoadingProvider>
             <AuthProvider>
               <NavigationLoader />

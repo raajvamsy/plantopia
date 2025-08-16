@@ -25,7 +25,7 @@ export function useEnhancedAuth() {
     console.log('Enhanced login called with:', { email, password: '***' });
     try {
       const result = await withLoading(
-        () => auth.login(email, password, rememberMe),
+        auth.login(email, password, rememberMe),
         'Signing you in...',
         'Authenticating your credentials'
       );

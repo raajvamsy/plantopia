@@ -20,6 +20,7 @@ import {
 import TabNavigation from '@/components/ui/tab-navigation';
 import AchievementCard from '@/components/ui/achievement-card';
 import BottomNavigation from '@/components/ui/bottom-navigation';
+import PlantopiaHeader from '@/components/ui/plantopia-header';
 
 // Mock plant data
 const plantsData = {
@@ -144,60 +145,7 @@ export default function PlantDetailPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <header className="bg-card border-b border-border sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14 sm:h-16">
-            <div className="flex items-center gap-2 sm:gap-4">
-              <button
-                onClick={() => router.back()}
-                className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 bg-muted hover:bg-muted/80 rounded-full transition-colors"
-              >
-                <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
-              </button>
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div 
-                  className="size-6 sm:size-8 flex items-center justify-center flex-shrink-0"
-                  style={{ color: colors.sage }}
-                >
-                  <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-                    <g clipPath="url(#clip0_6_535)">
-                      <path 
-                        clipRule="evenodd" 
-                        d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" 
-                        fill="currentColor" 
-                        fillRule="evenodd"
-                      />
-                    </g>
-                    <defs>
-                      <clipPath id="clip0_6_535">
-                        <rect fill="white" height="48" width="48" />
-                      </clipPath>
-                    </defs>
-                  </svg>
-                </div>
-                <h1 className="text-foreground text-lg sm:text-2xl font-bold tracking-tighter">Plantopia</h1>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2 sm:gap-3">
-              <button className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 bg-muted hover:bg-muted/80 rounded-full transition-colors">
-                <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
-              </button>
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-muted rounded-full overflow-hidden flex-shrink-0">
-                <div 
-                  className="w-full h-full bg-gradient-to-br from-sage to-mint flex items-center justify-center text-white font-bold text-sm sm:text-base"
-                  style={{ 
-                    background: `linear-gradient(135deg, ${colors.sage} 0%, ${colors.mint} 100%)`
-                  }}
-                >
-                  {userName.charAt(0).toUpperCase()}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+      <PlantopiaHeader currentPage="plant" showBackButton={true} customTitle={plant?.name} />
 
       {/* Main Content */}
       <main className="flex-1 px-3 sm:px-6 lg:px-8 py-4 sm:py-6 pb-24">
