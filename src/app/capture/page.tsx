@@ -272,7 +272,7 @@ export default function CapturePage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <PlantopiaHeader currentPage="capture" showBackButton={true} />
+      <PlantopiaHeader currentPage="capture" />
       <div className="flex h-full grow flex-col">
         <div className="flex flex-1 justify-center">
           <div className="flex w-full max-w-md flex-col bg-card min-h-0">

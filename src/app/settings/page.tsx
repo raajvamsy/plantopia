@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { usePlantopiaTheme } from '@/lib/theme';
-import { ArrowLeft, ChevronRight, Calendar } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Calendar, HelpCircle } from 'lucide-react';
 import { BottomNavigation, PlantopiaHeader, MobilePageWrapper } from '@/components/ui';
 import { cn } from '@/lib/utils';
 
@@ -85,7 +85,7 @@ export default function SettingsPage() {
 
   return (
     <MobilePageWrapper>
-      <PlantopiaHeader currentPage="settings" showBackButton={true} />
+      <PlantopiaHeader currentPage="settings" />
       <div className="mx-auto max-w-2xl px-4 sm:px-6 md:px-10 lg:px-20 xl:px-40 py-8">
           {/* Page Header */}
           <header className="mb-8">
@@ -146,6 +146,26 @@ export default function SettingsPage() {
                     onChange={(checked) => handleToggle('growthUpdates', checked)}
                   />
                 </div>
+              </div>
+            </section>
+
+            {/* Support Section */}
+            <section>
+              <h2 className="text-xl font-bold mb-4 px-4">Support</h2>
+              <div className="divide-y divide-border rounded-2xl bg-card overflow-hidden">
+                <button 
+                  onClick={() => router.push('/help')}
+                  className="w-full flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 transition-colors text-left"
+                >
+                  <div className="flex items-center gap-3">
+                    <HelpCircle className="w-5 h-5 text-primary" />
+                    <div>
+                      <p className="font-medium">Help & FAQs</p>
+                      <p className="text-sm text-muted-foreground">Get answers and troubleshooting tips</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                </button>
               </div>
             </section>
 

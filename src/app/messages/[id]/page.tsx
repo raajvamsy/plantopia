@@ -72,7 +72,6 @@ export default function MessageConversationPage() {
     <MobilePageWrapper>
       <PlantopiaHeader 
         currentPage="community" 
-        showBackButton={false}
         customTitle={conversation.user.name}
       />
       

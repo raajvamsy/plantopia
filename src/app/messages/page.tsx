@@ -163,7 +163,6 @@ export default function MessagesPage() {
     <MobilePageWrapper>
       <PlantopiaHeader 
         currentPage="community" 
-        showBackButton={false}
         customTitle="Messages"
       />
       

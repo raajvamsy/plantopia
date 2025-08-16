@@ -7,7 +7,6 @@ import { usePlantColors } from '@/lib/theme';
 import { 
   Settings, 
   User, 
-  ArrowLeft,
   Calendar,
   Search,
   MessageCircle
@@ -19,7 +18,6 @@ type PageType = 'dashboard' | 'plants' | 'plant' | 'capture' | 'settings' | 'pro
 
 interface PlantopiaHeaderProps {
   currentPage: PageType;
-  showBackButton?: boolean;
   customTitle?: string;
   className?: string;
 }
@@ -65,7 +63,6 @@ const iconComponents = {
 
 export default function PlantopiaHeader({ 
   currentPage, 
-  showBackButton = false, 
   customTitle,
   className 
 }: PlantopiaHeaderProps) {
@@ -81,10 +78,6 @@ export default function PlantopiaHeader({
     router.push(`/${destination}`);
   };
 
-  const handleBack = () => {
-    router.back();
-  };
-
   return (
     <header className={cn(
       "sticky top-0 z-10 h-14 sm:h-16 flex items-center justify-between whitespace-nowrap border-b border-border bg-background/80 px-4 backdrop-blur-sm sm:px-6",
@@ -96,15 +89,6 @@ export default function PlantopiaHeader({
         <div className="sm:hidden">
           <LeftNavigationTrigger />
         </div>
-        
-        {showBackButton && (
-          <button
-            onClick={handleBack}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-        )}
         
         {/* Logo and Title */}
         <div className="flex items-center gap-3">

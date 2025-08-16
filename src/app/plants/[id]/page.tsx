@@ -145,7 +145,7 @@ export default function PlantDetailPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <PlantopiaHeader currentPage="plant" showBackButton={true} customTitle={plant?.name} />
+      <PlantopiaHeader currentPage="plant" customTitle={plant?.name} />
 
       {/* Main Content */}
       <main className="flex-1 px-3 sm:px-6 lg:px-8 py-4 sm:py-6 pb-24">
