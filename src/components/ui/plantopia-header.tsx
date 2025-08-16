@@ -8,7 +8,9 @@ import {
   Settings, 
   User, 
   ArrowLeft,
-  Calendar
+  Calendar,
+  Search,
+  MessageCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -48,7 +50,7 @@ const pageConfig = {
   },
   community: {
     title: 'Community',
-    rightIcons: ['settings', 'profile']
+    rightIcons: ['search', 'message', 'profile']
   }
 };
 
@@ -56,6 +58,8 @@ const iconComponents = {
   settings: Settings,
   profile: User,
   calendar: Calendar,
+  search: Search,
+  message: MessageCircle,
 };
 
 export default function PlantopiaHeader({ 
@@ -118,7 +122,22 @@ export default function PlantopiaHeader({
           return (
             <button
               key={iconType}
-              onClick={() => handleNavigation(iconType === 'calendar' ? 'dashboard' : iconType)}
+              onClick={() => {
+                if (iconType === 'calendar') {
+                  handleNavigation('dashboard');
+                } else if (iconType === 'search') {
+                  // Focus search input if available, or handle search action
+                  const searchInput = document.getElementById('search');
+                  if (searchInput) {
+                    searchInput.focus();
+                  }
+                } else if (iconType === 'message') {
+                  // Could navigate to messages page when implemented
+                  console.log('Messages functionality to be implemented');
+                } else {
+                  handleNavigation(iconType);
+                }
+              }}
               className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-secondary text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
               <IconComponent className="h-4 w-4 sm:h-5 sm:w-5" />
