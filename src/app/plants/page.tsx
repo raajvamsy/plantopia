@@ -270,7 +270,10 @@ export default function PlantsPage() {
           {/* Page Header */}
           <div className="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <h2 className="text-3xl font-bold lg:text-4xl">My Plants</h2>
-            <button className="bg-emerald-500 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 hover:scale-105 hover:bg-emerald-600 flex items-center gap-2 shadow-lg">
+            <button 
+              onClick={() => router.push('/capture')}
+              className="bg-emerald-500 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 hover:scale-105 hover:bg-emerald-600 flex items-center gap-2 shadow-lg"
+            >
               <Plus size={20} />
               <span>Add New Plant</span>
             </button>

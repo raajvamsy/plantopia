@@ -64,11 +64,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Mock authentication - in real app, this would call your backend
-      if (email && password.length >= 8) {
+      // Very lenient validation for demo purposes
+      console.log('Login attempt:', { email, password: '***', passwordLength: password?.length });
+      
+      if (email && password && password.length >= 6) {
+        console.log('Login validation passed');
         const userData: User = {
           id: '1',
           email,
-          username: email.split('@')[0],
+          username: email.includes('@') ? email.split('@')[0] : email,
           name: 'Plant Lover'
         };
         
@@ -87,9 +91,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         
         return { success: true };
       } else {
-        return { success: false, error: 'Invalid email or password' };
+        console.log('Login validation failed:', { 
+          hasEmail: !!email, 
+          hasPassword: !!password, 
+          passwordLength: password?.length,
+          meetsRequirement: password?.length >= 6 
+        });
+        return { success: false, error: 'Please enter email and password (6+ characters)' };
       }
     } catch (error) {
+      console.error('Login error:', error);
       return { success: false, error: 'Login failed. Please try again.' };
     } finally {
       setIsLoading(false);

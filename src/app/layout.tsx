@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { PlantopiaThemeProvider } from "@/lib/theme";
 import { AuthProvider } from "@/lib/auth";
+import { LoadingProvider, NavigationLoader } from "@/lib/loading";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -75,9 +76,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <PlantopiaThemeProvider defaultMode="system">
-          <AuthProvider>
-            {children}
-          </AuthProvider>
+          <LoadingProvider>
+            <AuthProvider>
+              <NavigationLoader />
+              {children}
+            </AuthProvider>
+          </LoadingProvider>
         </PlantopiaThemeProvider>
       </body>
     </html>

@@ -3,12 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/lib/auth';
+import { useAuth, useEnhancedAuth } from '@/lib/auth';
 import { useThemeColors, usePlantColors } from '@/lib/theme/hooks';
 import { cn } from '@/lib/utils';
 import * as Checkbox from '@radix-ui/react-checkbox';
 import * as Label from '@radix-ui/react-label';
 import { CheckIcon, EyeIcon, EyeOffIcon, Loader2 } from 'lucide-react';
+import AuthLoading from '@/components/auth/auth-loading';
 
 interface FormData {
   email: string;
@@ -24,7 +25,8 @@ interface FormErrors {
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const enhancedAuth = useEnhancedAuth();
   const themeColors = useThemeColors();
   const plantColors = usePlantColors();
   
@@ -48,16 +50,15 @@ export default function LoginPage() {
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
+    // Very lenient validation for demo purposes
     if (!formData.email) {
       newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email) && formData.email.length < 3) {
-      newErrors.email = 'Please enter a valid email or username';
     }
 
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
     }
 
     setErrors(newErrors);
@@ -73,7 +74,8 @@ export default function LoginPage() {
     setErrors({});
 
     try {
-      const result = await login(formData.email, formData.password, formData.rememberMe);
+      console.log('Form submitting with:', { email: formData.email, password: '***', passwordLength: formData.password.length });
+      const result = await enhancedAuth.login(formData.email, formData.password, formData.rememberMe);
       
       if (result.success) {
         router.push('/dashboard');
@@ -96,11 +98,7 @@ export default function LoginPage() {
   };
 
   if (authLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="animate-spin" size={32} style={{ color: themeColors.sage }} />
-      </div>
-    );
+    return <AuthLoading message="Checking authentication..." subMessage="Please wait while we verify your session" />;
   }
 
   return (
