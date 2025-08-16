@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Home, Camera, Users, User } from 'lucide-react';
+import { Home, Camera, Users, User, Leaf } from 'lucide-react';
 import { usePlantColors } from '@/lib/theme';
 import { cn } from '@/lib/utils';
 
@@ -19,6 +19,12 @@ const navItems: NavItem[] = [
     label: 'Home',
     icon: Home,
     href: '/dashboard',
+  },
+  {
+    id: 'plants',
+    label: 'Plants',
+    icon: Leaf,
+    href: '/plants',
   },
   {
     id: 'capture',
@@ -54,7 +60,7 @@ export default function BottomNavigation() {
       <nav className="flex justify-around items-center h-16 sm:h-20 max-w-4xl mx-auto px-2 sm:px-4">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href || (item.href === '/plants' && pathname?.startsWith('/plants'));
 
           return (
             <button

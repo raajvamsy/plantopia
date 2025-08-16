@@ -182,14 +182,26 @@ export default function DashboardPage() {
 
           {/* My Plants Section */}
           <section className="mb-6 sm:mb-8">
-            <h3 className="text-foreground text-xl sm:text-2xl font-bold px-1 sm:px-4 mb-3 sm:mb-4">My Plants</h3>
+            <div className="flex items-center justify-between px-1 sm:px-4 mb-3 sm:mb-4">
+              <h3 className="text-foreground text-xl sm:text-2xl font-bold">My Plants</h3>
+              <button
+                onClick={() => router.push('/plants')}
+                className="text-primary hover:text-primary/80 text-sm sm:text-base font-medium transition-colors flex items-center gap-1"
+                style={{ color: colors.sage }}
+              >
+                View All
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
             <div className="overflow-x-auto">
               <div className="flex gap-3 sm:gap-4 px-1 sm:px-4 pb-2 min-w-max">
                 {plants.map((plant) => (
                   <div key={plant.id} className="flex-shrink-0">
                     <PlantCard
                       {...plant}
-                      onClick={() => console.log(`Clicked on ${plant.name}`)}
+                      onClick={() => router.push(`/plants/${plant.id}`)}
                       className="w-56 sm:w-64"
                     />
                   </div>
