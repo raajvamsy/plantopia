@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { usePlantopiaTheme } from '@/lib/theme';
-import { ArrowLeft, ChevronRight, Calendar, HelpCircle, MessageSquare } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Calendar, HelpCircle, MessageSquare, FileText } from 'lucide-react';
 import { BottomNavigation, PlantopiaHeader, MobilePageWrapper } from '@/components/ui';
 import { cn } from '@/lib/utils';
 
@@ -175,6 +175,19 @@ export default function SettingsPage() {
                     <div>
                       <p className="font-medium">Send Feedback</p>
                       <p className="text-sm text-muted-foreground">Share your thoughts and suggestions</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                </button>
+                <button 
+                  onClick={() => router.push('/terms')}
+                  className="w-full flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 transition-colors text-left"
+                >
+                  <div className="flex items-center gap-3">
+                    <FileText className="w-5 h-5 text-primary" />
+                    <div>
+                      <p className="font-medium">Terms &amp; Privacy</p>
+                      <p className="text-sm text-muted-foreground">View our terms of service and privacy policy</p>
                     </div>
                   </div>
                   <ChevronRight className="w-5 h-5 text-muted-foreground" />
