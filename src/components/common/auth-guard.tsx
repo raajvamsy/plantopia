@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSupabaseAuth } from '@/lib/auth/supabase-auth';
-import LoadingSpinner from './loading-spinner';
+import { LeafSpinner } from '@/components/ui';
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -32,7 +32,7 @@ export function AuthGuard({
   }, [isAuthenticated, isLoading, router, requireAuth, redirectTo]);
 
   if (isLoading) {
-    return <LoadingSpinner message="Checking authentication..." />;
+    return <LeafSpinner size="lg" showText={true} text="Checking authentication..." />;
     // return <FullPageLoader message="Checking authentication..." />;
   }
 

@@ -31,7 +31,9 @@ export function EmptyState({
     <div className={cn('flex flex-col items-center justify-center text-center py-8 px-4', className)}>
       {Icon && (
         <div className={cn('mb-4', iconClassName)}>
-          {typeof Icon === 'function' ? (
+          {React.isValidElement(Icon) ? (
+            Icon
+          ) : typeof Icon === 'function' ? (
             <Icon className="h-12 w-12 text-muted-foreground" />
           ) : (
             Icon

@@ -64,22 +64,28 @@ self.addEventListener('fetch', (event) => {
     );
   } else {
     // Handle other requests with network-first strategy
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          // Only cache successful responses
-          if (response.status === 200) {
-            const responseClone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, responseClone);
-            });
-          }
-          return response;
-        })
-        .catch(() => {
-          return caches.match(event.request);
-        })
-    );
+    // Only cache GET requests
+    if (event.request.method === 'GET') {
+      event.respondWith(
+        fetch(event.request)
+          .then((response) => {
+            // Only cache successful responses
+            if (response.status === 200) {
+              const responseClone = response.clone();
+              caches.open(CACHE_NAME).then((cache) => {
+                cache.put(event.request, responseClone);
+              });
+            }
+            return response;
+          })
+          .catch(() => {
+            return caches.match(event.request);
+          })
+      );
+    } else {
+      // For non-GET requests (POST, PUT, DELETE), just fetch without caching
+      event.respondWith(fetch(event.request));
+    }
   }
 });
 

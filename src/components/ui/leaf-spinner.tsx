@@ -34,6 +34,14 @@ export default function LeafSpinner({
 }: LeafSpinnerProps) {
   const colors = usePlantColors();
   
+  // Clean seasonal colors - one per season for simplicity
+  const seasonalColors = {
+    spring: '#22C55E',  // Fresh green
+    summer: '#059669',  // Deep emerald
+    autumn: '#F59E0B',  // Golden amber
+    winter: '#64748B'   // Cool gray
+  };
+  
   const spinnerSize = sizeClasses[size];
   const leafSize = leafSizes[size];
   
@@ -58,27 +66,27 @@ export default function LeafSpinner({
           }
           
           .spinner-leaf:nth-child(1) {
-            background-color: ${colors.sage};
+            background-color: ${seasonalColors.spring};
             animation-delay: -0.2s;
           }
           
           .spinner-leaf:nth-child(2) {
-            background-color: ${colors.mint};
+            background-color: ${seasonalColors.summer};
             animation-delay: -0.4s;
           }
           
           .spinner-leaf:nth-child(3) {
-            background-color: #48BB78;
+            background-color: ${seasonalColors.autumn};
             animation-delay: -0.6s;
           }
           
           .spinner-leaf:nth-child(4) {
-            background-color: #68D391;
+            background-color: ${seasonalColors.winter};
             animation-delay: -0.8s;
           }
           
           .spinner-leaf:nth-child(5) {
-            background-color: ${colors.sage};
+            background-color: ${seasonalColors.spring};
             animation-delay: -1s;
           }
           

@@ -20,10 +20,10 @@ import {
   AuthGuard, 
   PageLayout, 
   SectionHeader, 
-  EmptyState, 
-  LoadingSpinner,
+  EmptyState,
   PrimaryButton
 } from '@/components/common';
+import { LeafSpinner } from '@/components/ui';
 
 export default function PlantsPage() {
   const router = useRouter();
@@ -218,7 +218,7 @@ function PlantCard({ plant, onArchive, onDelete, onRestore, onClick }: PlantCard
         <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 mb-12">
           {isLoading ? (
             <div className="col-span-full flex justify-center py-8">
-              <LoadingSpinner size="lg" message="Loading plants..." />
+              <LeafSpinner size="lg" showText={true} text="Loading plants..." />
             </div>
           ) : filteredActivePlants.length > 0 ? (
             filteredActivePlants.map((plant) => (

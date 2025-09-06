@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useSupabaseAuth } from '@/lib/auth/supabase-auth';
 import { useThemeColors } from '@/lib/theme/hooks';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, Loader2, CheckCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle } from 'lucide-react';
+import { LeafSpinner } from '@/components/ui';
 
 export default function ForgotPasswordPage() {
   const { forgotPassword } = useSupabaseAuth();
@@ -177,8 +178,8 @@ export default function ForgotPasswordPage() {
           >
             {isLoading ? (
               <>
-                <Loader2 className="animate-spin mr-2" size={20} />
-                Sending Reset Link...
+                <LeafSpinner size="sm" />
+                <span className="ml-2">Sending Reset Link...</span>
               </>
             ) : (
               'Send Reset Link'

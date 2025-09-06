@@ -324,7 +324,12 @@ export function LeftNavigation({ isOpen, onClose }: LeftNavigationNavProps) {
     </>
   );
 
-  return createPortal(navigationContent, document.body);
+  // Only create portal if we have a valid DOM element
+  if (typeof window !== 'undefined' && document.body) {
+    return createPortal(navigationContent, document.body);
+  }
+
+  return null;
 }
 
 export default LeftNavigation;

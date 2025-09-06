@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSupabaseAuth } from '@/lib/auth/supabase-auth';
 import { Camera, X } from 'lucide-react';
+import { LeafSpinner } from '@/components/ui';
 import { usePlantColors } from '@/lib/theme';
 import type { Plant, Achievement } from '@/types/api';
 import { 
@@ -218,7 +219,7 @@ export default function ProfilePage() {
             <div className="mt-4 grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-6">
               {isLoading ? (
                 <div className="col-span-full flex items-center justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sage"></div>
+                  <LeafSpinner size="md" />
                 </div>
               ) : achievements.length > 0 ? (
                 achievements.map((achievement) => (
@@ -260,7 +261,7 @@ export default function ProfilePage() {
             <div className="mt-4 flex snap-x snap-mandatory space-x-4 overflow-x-auto pb-4 hide-scrollbar">
               {isLoading ? (
                 <div className="flex items-center justify-center py-8 w-full">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sage"></div>
+                  <LeafSpinner size="md" />
                 </div>
               ) : plants.length > 0 ? (
                 plants.map((plant) => (

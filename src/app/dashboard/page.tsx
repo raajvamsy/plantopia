@@ -12,18 +12,14 @@ import {
   Trophy,
   CloudSun
 } from 'lucide-react';
-import { 
-  PlantCard, 
-  TaskItem, 
-  ProgressBar
-} from '@/components/ui';
-import { 
-  AuthGuard, 
-  PageLayout, 
-  SectionHeader, 
-  EmptyState, 
-  LoadingSpinner 
-} from '@/components/common';
+import PlantCard from '@/components/ui/plant-card';
+import TaskItem from '@/components/ui/task-item';
+import ProgressBar from '@/components/ui/progress-bar';
+import { AuthGuard } from '@/components/common/auth-guard';
+import { PageLayout } from '@/components/common/page-layout';
+import { SectionHeader } from '@/components/common/section-header';
+import { EmptyState } from '@/components/common/empty-state';
+import { LeafSpinner } from '@/components/ui';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -102,7 +98,7 @@ export default function DashboardPage() {
           <div className="overflow-x-auto">
             <div className="flex gap-3 sm:gap-4 px-1 sm:px-4 pb-2 min-w-max">
               {isLoading ? (
-                <LoadingSpinner size="lg" message="Loading plants..." />
+                <LeafSpinner size="lg" showText={true} text="Loading plants..." />
               ) : plants.length > 0 ? (
                 plants.map((plant) => (
                   <div key={plant.id} className="flex-shrink-0">

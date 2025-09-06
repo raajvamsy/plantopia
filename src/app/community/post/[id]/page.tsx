@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Image from 'next/image';
 import { Heart, MessageCircle, Share, ArrowRight } from 'lucide-react';
+import { LeafSpinner } from '@/components/ui';
 import { usePlantColors } from '@/lib/theme';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -253,10 +254,7 @@ export default function PostDetailPage() {
           {/* Loading State */}
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sage mx-auto mb-4"></div>
-                <p className="text-gray-400">Loading post...</p>
-              </div>
+              <LeafSpinner size="lg" showText={true} text="Loading post..." />
             </div>
           ) : post ? (
             /* Post Card */

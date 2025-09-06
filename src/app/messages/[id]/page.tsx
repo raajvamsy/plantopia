@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { Send } from 'lucide-react';
+import { LeafSpinner } from '@/components/ui';
 import { usePlantColors } from '@/lib/theme';
 import { PlantopiaHeader, MobilePageWrapper, ResponsiveContainer } from '@/components/ui';
 import { Button } from '@/components/ui/button';
@@ -136,10 +137,7 @@ export default function MessageConversationPage() {
         <ResponsiveContainer maxWidth="4xl" padding="md" className="py-4">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sage mx-auto mb-4"></div>
-                <p className="text-gray-400">Loading conversation...</p>
-              </div>
+              <LeafSpinner size="lg" showText={true} text="Loading conversation..." />
             </div>
           ) : conversation ? (
             <div className="space-y-4">
@@ -217,7 +215,7 @@ export default function MessageConversationPage() {
               style={{ backgroundColor: colors.sage }}
             >
               {isSending ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                <LeafSpinner size="sm" />
               ) : (
                 <Send className="h-5 w-5" />
               )}

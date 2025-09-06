@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Loader2 } from 'lucide-react';
+import { LeafSpinner } from '@/components/ui';
 import { usePlantColors } from '@/lib/theme';
 import { cn } from '@/lib/utils';
 
@@ -62,7 +62,7 @@ export function PrimaryButton({
     >
       {isLoading ? (
         <>
-          <Loader2 className="animate-spin" size={18} />
+          <LeafSpinner size="sm" />
           {loadingText || 'Loading...'}
         </>
       ) : (
