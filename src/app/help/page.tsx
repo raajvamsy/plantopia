@@ -166,7 +166,7 @@ export default function HelpPage() {
               Need More Help?
             </h4>
             <p className="text-muted-foreground text-sm sm:text-base mb-6 max-w-md mx-auto leading-relaxed">
-              Can't find what you're looking for? Our support team is here to help.
+              Can&apos;t find what you&apos;re looking for? Our support team is here to help.
             </p>
             <button 
               onClick={() => window.location.href = 'mailto:support@plantopia.app?subject=Help%20Request&body=Please%20describe%20your%20issue%20here...'}

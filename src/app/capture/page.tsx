@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/auth';
+import { useSupabaseAuth } from '@/lib/auth/supabase-auth';
 import { usePlantColors } from '@/lib/theme';
 import { 
   Camera, 
@@ -21,6 +21,7 @@ import BottomNavigation from '@/components/ui/bottom-navigation';
 import PlantopiaHeader from '@/components/ui/plantopia-header';
 import { LeafSpinner } from '@/components/ui';
 import { useApiCall } from '@/lib/loading';
+import { PlantService } from '@/lib/supabase/services';
 
 interface PlantAnalysis {
   name: string;
@@ -40,7 +41,7 @@ interface PlantAnalysis {
 }
 
 // Mock Gemini AI analysis function
-const analyzePlantWithGemini = async (imageData: string): Promise<PlantAnalysis> => {
+const analyzePlantWithGemini = async (_imageData: string): Promise<PlantAnalysis> => {
   // Simulate AI processing delay
   await new Promise(resolve => setTimeout(resolve, 2000));
   
@@ -101,7 +102,7 @@ const analyzePlantWithGemini = async (imageData: string): Promise<PlantAnalysis>
 
 export default function CapturePage() {
   const router = useRouter();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useSupabaseAuth();
   const colors = usePlantColors();
   const { processImage } = useApiCall();
   const [captureMode, setCaptureMode] = useState<'permission' | 'camera' | 'captured' | 'analyzing' | 'analyzed'>('permission');
@@ -241,15 +242,34 @@ export default function CapturePage() {
     stopCamera();
   }, [stopCamera]);
 
-  const addPlantToCollection = useCallback(() => {
-    if (analysis) {
-      // Mock adding plant to collection
-      console.log('Adding plant to collection:', analysis.name);
-      
-      // Navigate back to plants page
-      router.push('/plants');
+  const addPlantToCollection = useCallback(async () => {
+    if (analysis && user) {
+      try {
+        // Create plant in Supabase
+        const newPlant = await PlantService.createPlant({
+          user_id: user.id,
+          name: analysis.name,
+          species: analysis.species || 'Unknown',
+          category: 'other' as 'indoor' | 'outdoor' | 'succulent' | 'herb' | 'flower' | 'other', // Default category
+          health: analysis.health,
+          moisture: 50, // Default moisture
+          sunlight: 50, // Default sunlight
+          notes: `AI Analysis: ${analysis.care.watering}. ${analysis.care.sunlight}. ${analysis.care.nutrients}`,
+          planted_date: new Date().toISOString().split('T')[0],
+        });
+
+        if (newPlant) {
+          console.log('Plant added to collection:', newPlant);
+          // Navigate back to plants page
+          router.push('/plants');
+        } else {
+          console.error('Failed to add plant to collection');
+        }
+      } catch (error) {
+        console.error('Error adding plant to collection:', error);
+      }
     }
-  }, [analysis, router]);
+  }, [analysis, user, router]);
 
   React.useEffect(() => {
     return () => stopCamera();
@@ -499,7 +519,7 @@ export default function CapturePage() {
                       </div>
                       <div>
                         <p className="font-semibold text-green-800 text-sm">Instant Plant Recognition</p>
-                        <p className="text-green-700 text-xs">Point, shoot, and discover what you're growing</p>
+                        <p className="text-green-700 text-xs">Point, shoot, and discover what you&apos;re growing</p>
                       </div>
                     </div>
 
@@ -509,7 +529,7 @@ export default function CapturePage() {
                       </div>
                       <div>
                         <p className="font-semibold text-blue-800 text-sm">Health Assessment</p>
-                        <p className="text-blue-700 text-xs">AI analyzes your plant's condition and needs</p>
+                        <p className="text-blue-700 text-xs">AI analyzes your plant&apos;s condition and needs</p>
                       </div>
                     </div>
 
@@ -634,7 +654,7 @@ export default function CapturePage() {
                       <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
                         <Star className="w-4 h-4 text-purple-600" />
                       </div>
-                      <p className="text-purple-800 text-sm">You'll earn XP and coins for each scan</p>
+                      <p className="text-purple-800 text-sm">You&apos;ll earn XP and coins for each scan</p>
                     </div>
                   </div>
                 </div>

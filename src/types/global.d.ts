@@ -41,8 +41,12 @@ declare module 'react' {
 // Global window extensions
 declare global {
   interface Window {
-    // Add any global window properties here if needed
+    // Global window extensions for Plantopia PWA
+    gtag?: (...args: unknown[]) => void;
   }
 }
+
+// Re-export API types for global access
+export * from './api';
 
 export {};

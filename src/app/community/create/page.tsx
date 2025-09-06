@@ -6,12 +6,14 @@ import Image from 'next/image';
 import { X, Edit3, ImagePlus } from 'lucide-react';
 import { usePlantColors } from '@/lib/theme';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+// import { Card } from '@/components/ui/card';
+// import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import PlantTagInput from '@/components/ui/plant-tag-input';
 import { cn } from '@/lib/utils';
 import { Plant } from '@/lib/data/plants';
+import { CommunityService } from '@/lib/supabase/services';
+import { useSupabaseAuth } from '@/lib/auth/supabase-auth';
 
 type VisibilityType = 'public' | 'friends' | 'private';
 
@@ -41,11 +43,13 @@ const visibilityOptions: VisibilityOption[] = [
 
 export default function CreatePostPage() {
   const router = useRouter();
-  const colors = usePlantColors();
+  // const colors = usePlantColors();
+  const { user, isAuthenticated } = useSupabaseAuth();
   const [caption, setCaption] = useState('');
   const [taggedPlants, setTaggedPlants] = useState<Plant[]>([]);
   const [visibility, setVisibility] = useState<VisibilityType>('public');
   const [selectedImage, setSelectedImage] = useState<string>('https://images.unsplash.com/photo-1463320726281-696a485928c7?w=600&h=450&fit=crop&crop=center');
+  const [isPosting, setIsPosting] = useState(false);
 
   const handleClose = () => {
     router.back();
@@ -59,17 +63,33 @@ export default function CreatePostPage() {
     }
   };
 
-  const handlePost = () => {
+  const handlePost = async () => {
     if (!caption.trim() && !selectedImage) return;
+    if (!user || !isAuthenticated) {
+      router.push('/login');
+      return;
+    }
     
-    console.log('Creating post:', {
-      caption,
-      taggedPlants,
-      visibility,
-      image: selectedImage
-    });
-    // Here you would typically send the data to your backend
-    router.push('/community');
+    setIsPosting(true);
+    try {
+      // Create post in Supabase
+      const newPost = await CommunityService.createPost({
+        user_id: user.id,
+        content: caption,
+        image_url: selectedImage !== 'https://images.unsplash.com/photo-1463320726281-696a485928c7?w=600&h=450&fit=crop&crop=center' ? selectedImage : null,
+      });
+
+      if (newPost) {
+        console.log('Post created successfully:', newPost);
+        router.push('/community');
+      } else {
+        console.error('Failed to create post');
+      }
+    } catch (error) {
+      console.error('Error creating post:', error);
+    } finally {
+      setIsPosting(false);
+    }
   };
 
   const isPostDisabled = !caption.trim() && !selectedImage;
@@ -202,15 +222,15 @@ export default function CreatePostPage() {
           <div className="pt-4">
             <Button
               onClick={handlePost}
-              disabled={isPostDisabled}
+              disabled={isPostDisabled || isPosting}
               className={cn(
                 "w-full py-3.5 text-base font-bold rounded-full transition-transform active:scale-100",
-                isPostDisabled 
+                isPostDisabled || isPosting
                   ? "bg-gray-600 text-gray-400 cursor-not-allowed" 
                   : "bg-sage hover:bg-sage/90 text-white hover:scale-105"
               )}
             >
-              Post
+              {isPosting ? 'Posting...' : 'Post'}
             </Button>
           </div>
         </div>

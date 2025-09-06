@@ -2,9 +2,10 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/auth';
+import { useSupabaseAuth } from '@/lib/auth/supabase-auth';
 import { Camera, X } from 'lucide-react';
 import { usePlantColors } from '@/lib/theme';
+import type { Plant, Achievement } from '@/types/api';
 import { 
   BottomNavigation, 
   PlantopiaHeader,
@@ -20,6 +21,7 @@ import {
   Label
 } from '@/components/ui';
 import { cn } from '@/lib/utils';
+import { AchievementService, PlantService } from '@/lib/supabase/services';
 
 // Mock data for achievements
 const mockAchievements = [
@@ -117,15 +119,42 @@ const mockPlants = [
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, logout } = useSupabaseAuth();
   const colors = usePlantColors();
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [hoveredAchievement, setHoveredAchievement] = useState<string | null>(null);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [plants, setPlants] = useState<Plant[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const handleLogout = async () => {
     await logout();
     router.push('/');
   };
+
+  // Fetch user data on component mount
+  React.useEffect(() => {
+    const fetchUserData = async () => {
+      if (!user) return;
+      
+      try {
+        setIsLoading(true);
+        // Fetch achievements
+        const achievementsData = await AchievementService.getUserAchievements(user.id);
+        setAchievements(achievementsData || []);
+        
+        // Fetch plants
+        const plantsData = await PlantService.getUserPlants(user.id);
+        setPlants(plantsData || []);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [user]);
 
   // Redirect if not authenticated (client-side only)
   React.useEffect(() => {
@@ -138,7 +167,7 @@ export default function ProfilePage() {
     return null;
   }
 
-  const userName = user.name || user.username || 'Flora Greenleaf';
+  const userName = user?.full_name || user?.username || 'Flora Greenleaf';
   const userBio = 'Plant enthusiast and nature lover';
 
   return (
@@ -187,31 +216,41 @@ export default function ProfilePage() {
           <div className="mt-10">
             <h3 className="text-2xl font-bold">Achievements</h3>
             <div className="mt-4 grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-6">
-              {mockAchievements.map((achievement) => (
-                <div 
-                  key={achievement.id}
-                  className="group relative flex flex-col items-center gap-2 text-center"
-                  onMouseEnter={() => setHoveredAchievement(achievement.id)}
-                  onMouseLeave={() => setHoveredAchievement(null)}
-                >
-                  <div 
-                    className={cn(
-                      "h-20 w-20 rounded-full flex items-center justify-center text-2xl transition-transform group-hover:scale-110",
-                      achievement.completed ? "opacity-100" : "opacity-50 grayscale"
-                    )}
-                    style={{ backgroundColor: achievement.color + '20' }}
-                  >
-                    {achievement.icon}
-                  </div>
-                  {hoveredAchievement === achievement.id && (
-                    <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 z-10">
-                      <div className="rounded-md bg-secondary px-2 py-1 text-xs whitespace-nowrap">
-                        {achievement.title}
-                      </div>
-                    </div>
-                  )}
+              {isLoading ? (
+                <div className="col-span-full flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sage"></div>
                 </div>
-              ))}
+              ) : achievements.length > 0 ? (
+                achievements.map((achievement) => (
+                  <div 
+                    key={achievement.id}
+                    className="group relative flex flex-col items-center gap-2 text-center"
+                    onMouseEnter={() => setHoveredAchievement(achievement.id)}
+                    onMouseLeave={() => setHoveredAchievement(null)}
+                  >
+                    <div 
+                      className={cn(
+                        "h-20 w-20 rounded-full flex items-center justify-center text-2xl transition-transform group-hover:scale-110",
+                        achievement.completed ? "opacity-100" : "opacity-50 grayscale"
+                      )}
+                      style={{ backgroundColor: achievement.color + '20' }}
+                    >
+                      {achievement.icon}
+                    </div>
+                    {hoveredAchievement === achievement.id && (
+                      <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 z-10">
+                        <div className="rounded-md bg-secondary px-2 py-1 text-xs whitespace-nowrap">
+                          {achievement.title}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-8 text-muted-foreground">
+                  No achievements yet. Keep growing plants to earn them!
+                </div>
+              )}
             </div>
           </div>
 
@@ -219,28 +258,44 @@ export default function ProfilePage() {
           <div className="mt-10">
             <h3 className="text-2xl font-bold">Plant Showcase</h3>
             <div className="mt-4 flex snap-x snap-mandatory space-x-4 overflow-x-auto pb-4 hide-scrollbar">
-              {mockPlants.map((plant) => (
-                <div key={plant.id} className="w-48 flex-shrink-0 snap-center">
-                  <div className="group relative block overflow-hidden rounded-2xl bg-card">
-                    <div className="h-48 w-full bg-muted relative overflow-hidden">
-                      <img 
-                        src={plant.imageUrl} 
-                        alt={plant.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-                    </div>
-                    <div className="absolute bottom-0 p-4 text-white">
-                      <p className="text-lg font-bold">{plant.name}</p>
-                      <p className="text-sm opacity-80">Level {plant.level}</p>
+              {isLoading ? (
+                <div className="flex items-center justify-center py-8 w-full">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sage"></div>
+                </div>
+              ) : plants.length > 0 ? (
+                plants.map((plant) => (
+                  <div key={plant.id} className="w-48 flex-shrink-0 snap-center">
+                    <div className="group relative block overflow-hidden rounded-2xl bg-card">
+                      <div className="h-48 w-full bg-muted relative overflow-hidden">
+                        {plant.image_url ? (
+                          <img 
+                            src={plant.image_url} 
+                            alt={plant.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-4xl">
+                            🌱
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                      </div>
+                      <div className="absolute bottom-0 p-4 text-white">
+                        <p className="text-lg font-bold">{plant.name}</p>
+                        <p className="text-sm opacity-80">Level {plant.level}</p>
+                      </div>
                     </div>
                   </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  No plants yet. Start growing your collection!
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>

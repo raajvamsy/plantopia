@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/auth';
+import { useSupabaseAuth } from '@/lib/auth/supabase-auth';
 import { usePlantColors } from '@/lib/theme';
 import { 
   Settings, 
@@ -14,7 +14,7 @@ import {
 import { LeftNavigationTrigger } from './left-navigation';
 import { cn } from '@/lib/utils';
 
-type PageType = 'dashboard' | 'plants' | 'plant' | 'capture' | 'settings' | 'profile' | 'community';
+type PageType = 'dashboard' | 'plants' | 'plant' | 'capture' | 'settings' | 'profile' | 'community' | 'messages';
 
 interface PlantopiaHeaderProps {
   currentPage: PageType;
@@ -50,6 +50,10 @@ const pageConfig = {
   community: {
     title: 'Community',
     rightIcons: ['search', 'message', 'profile']
+  },
+  messages: {
+    title: 'Messages',
+    rightIcons: ['search', 'profile']
   }
 };
 
@@ -67,12 +71,12 @@ export default function PlantopiaHeader({
   className 
 }: PlantopiaHeaderProps) {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user } = useSupabaseAuth();
   const colors = usePlantColors();
 
   const config = pageConfig[currentPage];
   const title = customTitle || config.title;
-  const userName = user?.name || user?.username || 'Plant Lover';
+  const userName = user?.full_name || user?.username || 'Plant Lover';
 
   const handleNavigation = (destination: string) => {
     router.push(`/${destination}`);

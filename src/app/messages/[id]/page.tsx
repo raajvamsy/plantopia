@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { Send } from 'lucide-react';
 import { usePlantColors } from '@/lib/theme';
 import { PlantopiaHeader, MobilePageWrapper, ResponsiveContainer } from '@/components/ui';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { MessageService } from '@/lib/supabase/services';
+import { useSupabaseAuth } from '@/lib/auth/supabase-auth';
 
 interface Message {
   id: number;
@@ -21,6 +23,7 @@ interface Conversation {
 }
 
 // Sample message conversation data
+/*
 const sampleConversations: { [key: string]: Conversation } = {
   '1': {
     user: { name: 'Sophia Carter', avatar: '/api/placeholder/56/56' },
@@ -41,23 +44,76 @@ const sampleConversations: { [key: string]: Conversation } = {
     ]
   }
 };
+*/
 
 export default function MessageConversationPage() {
   const params = useParams();
   const colors = usePlantColors();
+  const { user, isAuthenticated } = useSupabaseAuth();
+  const [conversation, setConversation] = useState<{
+    user?: {
+      full_name: string;
+    };
+  } | null>(null);
+  const [messages, setMessages] = useState<{
+    id: string;
+    content: string;
+    created_at: string;
+    sender_id: string;
+    receiver_id: string;
+  }[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSending, setIsSending] = useState(false);
   
   const messageId = params.id as string;
-  const conversation = sampleConversations[messageId] || {
-    user: { name: 'Unknown User', avatar: '/api/placeholder/56/56' },
-    messages: []
-  };
 
-  const handleSendMessage = () => {
-    if (newMessage.trim()) {
-      // Here you would typically send the message to your backend
-      console.log('Sending message:', newMessage);
-      setNewMessage('');
+  // Fetch conversation data on component mount
+  React.useEffect(() => {
+    const fetchConversationData = async () => {
+      if (!messageId || !user) return;
+      
+      try {
+        setIsLoading(true);
+        // Fetch messages between current user and the other user
+        const messagesData = await MessageService.getConversation(user.id, messageId);
+        setMessages(messagesData);
+        
+        // Set a basic conversation object (we don't have user details from MessageService)
+        setConversation({
+          user: {
+            full_name: 'User' // Placeholder - would need to fetch from UserService
+          }
+        });
+      } catch (error) {
+        console.error('Error fetching conversation data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchConversationData();
+  }, [messageId, user]);
+
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || !user || !isAuthenticated) return;
+    
+    try {
+      setIsSending(true);
+      const sentMessage = await MessageService.sendMessage({
+        sender_id: user.id,
+        receiver_id: messageId, // Assuming messageId is the receiver's user ID
+        content: newMessage.trim(),
+      });
+
+      if (sentMessage) {
+        setMessages(prev => [...prev, sentMessage]);
+        setNewMessage('');
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -72,47 +128,60 @@ export default function MessageConversationPage() {
     <MobilePageWrapper>
       <PlantopiaHeader 
         currentPage="community" 
-        customTitle={conversation.user.name}
+        customTitle={conversation?.user?.full_name || 'Conversation'}
       />
       
       {/* Messages Container - with bottom padding for fixed input */}
       <div className="flex-1 overflow-y-auto pb-20">
         <ResponsiveContainer maxWidth="4xl" padding="md" className="py-4">
-          <div className="space-y-4">
-            {conversation.messages.map((message: Message) => (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sage mx-auto mb-4"></div>
+                <p className="text-gray-400">Loading conversation...</p>
+              </div>
+            </div>
+          ) : conversation ? (
+            <div className="space-y-4">
+              {messages.map((message) => (
               <div
                 key={message.id}
                 className={cn(
                   "flex",
-                  message.sender === 'me' ? "justify-end" : "justify-start"
+                  message.sender_id === user?.id ? "justify-end" : "justify-start"
                 )}
               >
                 <div
                   className={cn(
                     "max-w-xs sm:max-w-md px-4 py-3 rounded-2xl",
-                    message.sender === 'me'
+                    message.sender_id === user?.id
                       ? "text-white rounded-br-md"
                       : "bg-secondary text-foreground rounded-bl-md"
                   )}
                   style={{
-                    backgroundColor: message.sender === 'me' ? colors.sage : undefined
+                    backgroundColor: message.sender_id === user?.id ? colors.sage : undefined
                   }}
                 >
-                  <p className="text-sm">{message.text}</p>
+                  <p className="text-sm">{message.content}</p>
                   <p 
                     className={cn(
                       "text-xs mt-1",
-                      message.sender === 'me' 
+                      message.sender_id === user?.id
                         ? "text-white/70" 
                         : "text-muted-foreground"
                     )}
                   >
-                    {message.timestamp}
+                    {new Date(message.created_at).toLocaleTimeString()}
                   </p>
                 </div>
               </div>
             ))}
           </div>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-gray-400">Conversation not found</p>
+          </div>
+        )}
         </ResponsiveContainer>
       </div>
 
@@ -137,17 +206,21 @@ export default function MessageConversationPage() {
             </div>
             <Button
               onClick={handleSendMessage}
-              disabled={!newMessage.trim()}
+              disabled={!newMessage.trim() || isSending}
               size="icon"
               className={cn(
                 "h-12 w-12 rounded-2xl text-white transition-all flex-shrink-0",
-                newMessage.trim() 
+                newMessage.trim() && !isSending
                   ? "opacity-100 scale-100 shadow-lg" 
                   : "opacity-50 scale-95"
               )}
               style={{ backgroundColor: colors.sage }}
             >
-              <Send className="h-5 w-5" />
+              {isSending ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              ) : (
+                <Send className="h-5 w-5" />
+              )}
             </Button>
           </div>
         </ResponsiveContainer>

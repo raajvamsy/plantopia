@@ -1,104 +1,51 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { useAuth } from '@/lib/auth';
+import { useSupabaseAuth } from '@/lib/auth/supabase-auth';
+import { PlantService } from '@/lib/supabase/services';
 import { usePlantColors } from '@/lib/theme';
+import type { Plant } from '@/types/api';
 import { 
   Plus, 
   ArrowLeft, 
   Settings,
   Trash2,
   Archive,
-  RotateCcw
+  RotateCcw,
+  Leaf as LeafIcon
 } from 'lucide-react';
 import { 
-  BottomNavigation, 
-  PlantopiaHeader,
-  MobilePageWrapper,
-  ResponsiveContainer
-} from '@/components/ui';
+  AuthGuard, 
+  PageLayout, 
+  SectionHeader, 
+  EmptyState, 
+  LoadingSpinner,
+  PrimaryButton
+} from '@/components/common';
 
-// Mock data for plants
-const activePlants = [
-  {
-    id: '1',
-    name: 'Fiddle Leaf Fig',
-    category: 'indoor',
-    imageUrl: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=400&fit=crop&auto=format',
-    isArchived: false,
-  },
-  {
-    id: '2',
-    name: 'Snake Plant',
-    category: 'indoor',
-    imageUrl: 'https://images.unsplash.com/photo-1632207691143-643e2a9a9361?w=400&h=400&fit=crop&auto=format',
-    isArchived: false,
-  },
-  {
-    id: '3',
-    name: 'Peace Lily',
-    category: 'indoor',
-    imageUrl: 'https://images.unsplash.com/photo-1591958911259-bee2173bdac4?w=400&h=400&fit=crop&auto=format',
-    isArchived: false,
-  },
-  {
-    id: '4',
-    name: 'Monstera',
-    category: 'indoor',
-    imageUrl: 'https://images.unsplash.com/photo-1545239351-1141bd82e8a6?w=400&h=400&fit=crop&auto=format',
-    isArchived: false,
-  },
-  {
-    id: '5',
-    name: 'Basil',
-    category: 'herbs',
-    imageUrl: 'https://images.unsplash.com/photo-1618164435735-413d3b066c9a?w=400&h=400&fit=crop&auto=format',
-    isArchived: false,
-  },
-  {
-    id: '6',
-    name: 'Aloe Vera',
-    category: 'succulents',
-    imageUrl: 'https://images.unsplash.com/photo-1509423350716-97f2360af203?w=400&h=400&fit=crop&auto=format',
-    isArchived: false,
-  },
-];
+export default function PlantsPage() {
+  const router = useRouter();
+  const { user } = useSupabaseAuth();
+  const colors = usePlantColors();
+  const [activeCategory, setActiveCategory] = useState('all');
 
-const archivedPlants = [
-  {
-    id: '7',
-    name: 'Rosemary',
-    category: 'herbs',
-    imageUrl: 'https://images.unsplash.com/photo-1515665793325-32d5d7a6b8b7?w=400&h=400&fit=crop&auto=format',
-    isArchived: true,
-  },
-  {
-    id: '8',
-    name: 'Lavender',
-    category: 'herbs',
-    imageUrl: 'https://images.unsplash.com/photo-1611909023032-2d6b3134ecba?w=400&h=400&fit=crop&auto=format',
-    isArchived: true,
-  },
-];
+  // Plant data state
+  const [activePlants, setActivePlants] = useState<Plant[]>([]);
+  const [archivedPlants, setArchivedPlants] = useState<Plant[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-const categories = [
-  { id: 'all', label: 'All', isActive: true },
-  { id: 'indoor', label: 'Indoor', isActive: false },
-  { id: 'outdoor', label: 'Outdoor', isActive: false },
-  { id: 'herbs', label: 'Herbs', isActive: false },
-  { id: 'succulents', label: 'Succulents', isActive: false },
-];
+  const categories = [
+    { id: 'all', label: 'All', isActive: true },
+    { id: 'indoor', label: 'Indoor', isActive: false },
+    { id: 'outdoor', label: 'Outdoor', isActive: false },
+    { id: 'herbs', label: 'Herbs', isActive: false },
+    { id: 'succulents', label: 'Succulents', isActive: false },
+  ];
 
 interface PlantCardProps {
-  plant: {
-    id: string;
-    name: string;
-    category: string;
-    imageUrl: string;
-    isArchived: boolean;
-  };
+  plant: Plant;
   onArchive?: (id: string) => void;
   onDelete?: (id: string) => void;
   onRestore?: (id: string) => void;
@@ -110,17 +57,17 @@ function PlantCard({ plant, onArchive, onDelete, onRestore, onClick }: PlantCard
     <div className="group relative cursor-pointer" onClick={onClick}>
       <div 
         className={`aspect-square w-full overflow-hidden rounded-lg transition-all duration-300 ${
-          plant.isArchived 
+          plant.is_archived 
             ? 'bg-muted opacity-50' 
             : 'bg-muted hover:shadow-xl'
         }`}
       >
         <Image
-          src={plant.imageUrl}
+          src={plant.image_url || '/api/placeholder/400/300'}
           alt={plant.name}
           fill
           className={`object-cover object-center transition-transform duration-300 ${
-            plant.isArchived ? '' : 'group-hover:scale-110'
+            plant.is_archived ? '' : 'group-hover:scale-110'
           }`}
           sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
           placeholder="blur"
@@ -129,7 +76,7 @@ function PlantCard({ plant, onArchive, onDelete, onRestore, onClick }: PlantCard
       </div>
       <h3 
         className={`mt-2 text-sm font-semibold ${
-          plant.isArchived ? 'text-muted-foreground' : 'text-foreground'
+          plant.is_archived ? 'text-muted-foreground' : 'text-foreground'
         }`}
       >
         {plant.name}
@@ -138,10 +85,10 @@ function PlantCard({ plant, onArchive, onDelete, onRestore, onClick }: PlantCard
       {/* Action buttons */}
       <div 
         className={`absolute flex flex-col gap-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100 ${
-          plant.isArchived ? 'top-2 right-2' : 'top-2 right-2'
+          plant.is_archived ? 'top-2 right-2' : 'top-2 right-2'
         }`}
       >
-        {plant.isArchived ? (
+        {plant.is_archived ? (
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -181,80 +128,68 @@ function PlantCard({ plant, onArchive, onDelete, onRestore, onClick }: PlantCard
   );
 }
 
-export default function PlantsPage() {
-  const router = useRouter();
-  const { user, isAuthenticated } = useAuth();
-  const colors = usePlantColors();
-  const [activeCategory, setActiveCategory] = useState('all');
-  const [plants, setPlants] = useState({
-    active: activePlants,
-    archived: archivedPlants,
-  });
-
-  // Redirect if not authenticated
-  React.useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login');
+  // Load plants data from Supabase
+  useEffect(() => {
+    if (user) {
+      loadPlantsData();
     }
-  }, [isAuthenticated, router]);
+  }, [user]);
 
-  if (!user) {
-    return null;
-  }
-
-  const userName = user.name || user.username || 'Plant Lover';
-
+  const loadPlantsData = async () => {
+    try {
+      setIsLoading(true);
+      const [activeData, archivedData] = await Promise.all([
+        PlantService.getUserPlants(user!.id, false),
+        PlantService.getUserPlants(user!.id, true)
+      ]);
+      setActivePlants(activeData);
+      setArchivedPlants(archivedData);
+    } catch (err) {
+      console.error('Error loading plants data:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
   const handleArchivePlant = (plantId: string) => {
-    setPlants(prev => {
-      const plantToArchive = prev.active.find(p => p.id === plantId);
-      if (!plantToArchive) return prev;
+    const plantToArchive = activePlants.find(p => p.id === plantId);
+    if (!plantToArchive) return;
 
-      return {
-        active: prev.active.filter(p => p.id !== plantId),
-        archived: [...prev.archived, { ...plantToArchive, isArchived: true }],
-      };
-    });
+    setActivePlants(prev => prev.filter(p => p.id !== plantId));
+    setArchivedPlants(prev => [...prev, { ...plantToArchive, is_archived: true }]);
   };
 
   const handleDeletePlant = (plantId: string) => {
-    setPlants(prev => ({
-      ...prev,
-      active: prev.active.filter(p => p.id !== plantId),
-    }));
+    setActivePlants(prev => prev.filter(p => p.id !== plantId));
   };
 
   const handleRestorePlant = (plantId: string) => {
-    setPlants(prev => {
-      const plantToRestore = prev.archived.find(p => p.id === plantId);
-      if (!plantToRestore) return prev;
+    const plantToRestore = archivedPlants.find(p => p.id === plantId);
+    if (!plantToRestore) return;
 
-      return {
-        active: [...prev.active, { ...plantToRestore, isArchived: false }],
-        archived: prev.archived.filter(p => p.id !== plantId),
-      };
-    });
+    setArchivedPlants(prev => prev.filter(p => p.id !== plantId));
+    setActivePlants(prev => [...prev, { ...plantToRestore, is_archived: false }]);
   };
 
   const filteredActivePlants = activeCategory === 'all' 
-    ? plants.active 
-    : plants.active.filter(plant => plant.category === activeCategory);
+    ? activePlants 
+    : activePlants.filter(plant => plant.category === activeCategory);
 
   return (
-    <MobilePageWrapper>
-      <PlantopiaHeader currentPage="plants" />
-      <ResponsiveContainer maxWidth="4xl" padding="lg" className="py-4 sm:py-8 min-h-full">
-          {/* Page Header */}
-          <div className="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-            <h2 className="text-foreground text-3xl font-bold lg:text-4xl">My Plants</h2>
-            <button 
+    <AuthGuard>
+      <PageLayout currentPage="plants" className="py-4 sm:py-8 min-h-full">
+        {/* Page Header */}
+        <SectionHeader
+          title="My Plants"
+          action={
+            <PrimaryButton
               onClick={() => router.push('/capture')}
-              className="font-bold py-3 px-6 rounded-full transition-all duration-300 hover:scale-105 flex items-center gap-2 shadow-lg text-primary-foreground"
-              style={{ backgroundColor: colors.sage }}
+              icon={<Plus size={20} />}
             >
-              <Plus size={20} />
-              <span>Add New Plant</span>
-            </button>
-          </div>
+              Add New Plant
+            </PrimaryButton>
+          }
+        />
 
           {/* Tab Navigation */}
           <div className="mb-6 border-b border-border">
@@ -279,9 +214,14 @@ export default function PlantsPage() {
             </nav>
           </div>
 
-          {/* Active Plants Grid */}
-          <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 mb-12">
-            {filteredActivePlants.map((plant) => (
+        {/* Active Plants Grid */}
+        <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 mb-12">
+          {isLoading ? (
+            <div className="col-span-full flex justify-center py-8">
+              <LoadingSpinner size="lg" message="Loading plants..." />
+            </div>
+          ) : filteredActivePlants.length > 0 ? (
+            filteredActivePlants.map((plant) => (
               <PlantCard
                 key={plant.id}
                 plant={plant}
@@ -289,27 +229,43 @@ export default function PlantsPage() {
                 onDelete={handleDeletePlant}
                 onClick={() => router.push(`/plants/${plant.id}`)}
               />
-            ))}
-          </div>
-
-          {/* Archived Plants */}
-          {plants.archived.length > 0 && (
-            <div>
-              <h2 className="mb-6 text-2xl font-bold text-foreground">Archived Plants</h2>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-                {plants.archived.map((plant) => (
-                  <PlantCard
-                    key={plant.id}
-                    plant={plant}
-                    onRestore={handleRestorePlant}
-                    onClick={() => router.push(`/plants/${plant.id}`)}
-                  />
-                ))}
-              </div>
+            ))
+          ) : (
+            <div className="col-span-full">
+              <EmptyState
+                icon={LeafIcon}
+                title="No plants found"
+                description="Start growing your collection!"
+                action={
+                  <PrimaryButton
+                    onClick={() => router.push('/capture')}
+                    icon={<Plus size={20} />}
+                  >
+                    Add Your First Plant
+                  </PrimaryButton>
+                }
+              />
             </div>
           )}
-      </ResponsiveContainer>
-      <BottomNavigation />
-    </MobilePageWrapper>
+        </div>
+
+        {/* Archived Plants */}
+        {archivedPlants.length > 0 && (
+          <div>
+            <SectionHeader title="Archived Plants" />
+            <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+              {archivedPlants.map((plant) => (
+                <PlantCard
+                  key={plant.id}
+                  plant={plant}
+                  onRestore={handleRestorePlant}
+                  onClick={() => router.push(`/plants/${plant.id}`)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </PageLayout>
+    </AuthGuard>
   );
 }

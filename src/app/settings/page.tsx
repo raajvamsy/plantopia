@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/auth';
+import { useSupabaseAuth } from '@/lib/auth/supabase-auth';
 import { usePlantopiaTheme } from '@/lib/theme';
 import { ArrowLeft, ChevronRight, Calendar, HelpCircle, MessageSquare, FileText } from 'lucide-react';
 import { BottomNavigation, PlantopiaHeader, MobilePageWrapper } from '@/components/ui';
@@ -40,7 +40,7 @@ function ToggleSwitch({ checked, onChange, disabled = false }: ToggleSwitchProps
 
 export default function SettingsPage() {
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, logout } = useSupabaseAuth();
   const { theme, setTheme, isDark } = usePlantopiaTheme();
   
   // Settings state
@@ -81,7 +81,7 @@ export default function SettingsPage() {
     return null;
   }
 
-  const userName = user.name || user.username || 'Flora Greenleaf';
+  const userName = user?.full_name || user?.username || 'Flora Greenleaf';
 
   return (
     <MobilePageWrapper>

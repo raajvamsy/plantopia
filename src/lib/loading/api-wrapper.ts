@@ -51,7 +51,7 @@ export function useApiCall() {
       loadingMessage?: string,
       subMessage?: string
     ): Promise<T> => {
-      return withLoading(apiFunction, loadingMessage, subMessage);
+      return withLoading(apiFunction(), loadingMessage, subMessage);
     },
 
     // Specific API wrappers for common operations
@@ -60,7 +60,7 @@ export function useApiCall() {
       dataType?: string
     ): Promise<T> => {
       return withLoading(
-        fetchFunction,
+        fetchFunction(),
         `Loading ${dataType || 'data'}...`,
         'Please wait while we fetch your information'
       );
@@ -71,7 +71,7 @@ export function useApiCall() {
       dataType?: string
     ): Promise<T> => {
       return withLoading(
-        saveFunction,
+        saveFunction(),
         `Saving ${dataType || 'data'}...`,
         'Please wait while we save your changes'
       );
@@ -82,7 +82,7 @@ export function useApiCall() {
       dataType?: string
     ): Promise<T> => {
       return withLoading(
-        deleteFunction,
+        deleteFunction(),
         `Deleting ${dataType || 'item'}...`,
         'This action cannot be undone'
       );
@@ -93,7 +93,7 @@ export function useApiCall() {
       fileName?: string
     ): Promise<T> => {
       return withLoading(
-        uploadFunction,
+        uploadFunction(),
         `Uploading ${fileName || 'file'}...`,
         'Please keep this page open while uploading'
       );
@@ -103,7 +103,7 @@ export function useApiCall() {
       processFunction: () => Promise<T>
     ): Promise<T> => {
       return withLoading(
-        processFunction,
+        processFunction(),
         'Analyzing image...',
         'AI is identifying your plant'
       );
@@ -114,7 +114,7 @@ export function useApiCall() {
 // Standalone functions for use outside of React components
 export class ApiLoader {
   private static instance: ApiLoader;
-  private loadingContext: any;
+  private loadingContext: { withLoading: <T>(fn: () => Promise<T>, message?: string, subMessage?: string) => Promise<T> } | null = null;
 
   private constructor() {}
 
@@ -125,7 +125,7 @@ export class ApiLoader {
     return ApiLoader.instance;
   }
 
-  setLoadingContext(context: any) {
+  setLoadingContext(context: { withLoading: <T>(fn: () => Promise<T>, message?: string, subMessage?: string) => Promise<T> }) {
     this.loadingContext = context;
   }
 

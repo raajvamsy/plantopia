@@ -43,7 +43,7 @@ export function useEnhancedAuth() {
     username: string
   ) => {
     return withLoading(
-      () => auth.signup(email, password, username),
+      auth.signup(email, password, username),
       'Creating your account...',
       'Setting up your digital garden'
     );
@@ -51,7 +51,7 @@ export function useEnhancedAuth() {
 
   const enhancedForgotPassword = async (email: string) => {
     return withLoading(
-      () => auth.forgotPassword(email),
+      auth.forgotPassword(email),
       'Sending reset email...',
       'Please check your inbox'
     );
@@ -59,11 +59,11 @@ export function useEnhancedAuth() {
 
   const enhancedLogout = async () => {
     return withLoading(
-      async () => {
+      (async () => {
         // Add a small delay for better UX
         await new Promise(resolve => setTimeout(resolve, 500));
         await auth.logout();
-      },
+      })(),
       'Signing you out...',
       'Saving your session'
     );

@@ -17,6 +17,9 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Ensure proper asset generation and prevent chunk loading errors
+  generateEtags: false,
+  poweredByHeader: false,
 };
 
 export default nextConfig;

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { PlantopiaThemeProvider } from "@/lib/theme";
-import { AuthProvider } from "@/lib/auth";
+import { SupabaseAuthProvider } from "@/lib/auth/supabase-auth";
 import { LoadingProvider, NavigationLoader } from "@/lib/loading";
 
 const geistSans = Geist({
@@ -57,6 +57,24 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
+              // Handle chunk loading errors
+              window.addEventListener('error', function(event) {
+                if (event.message && event.message.includes('Loading chunk')) {
+                  console.warn('Chunk loading error detected, attempting reload...');
+                  window.location.reload();
+                }
+              });
+              
+              // Handle unhandled promise rejections (including chunk loading failures)
+              window.addEventListener('unhandledrejection', function(event) {
+                if (event.reason && event.reason.message && event.reason.message.includes('Loading chunk')) {
+                  console.warn('Chunk loading promise rejection detected, attempting reload...');
+                  event.preventDefault();
+                  window.location.reload();
+                }
+              });
+              
+              // Service Worker registration
               if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function() {
                   navigator.serviceWorker.register('/sw.js')
@@ -77,10 +95,10 @@ export default function RootLayout({
       >
         <PlantopiaThemeProvider defaultMode="light">
           <LoadingProvider>
-            <AuthProvider>
+            <SupabaseAuthProvider>
               <NavigationLoader />
               {children}
-            </AuthProvider>
+            </SupabaseAuthProvider>
           </LoadingProvider>
         </PlantopiaThemeProvider>
       </body>

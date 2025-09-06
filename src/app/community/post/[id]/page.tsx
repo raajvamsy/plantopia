@@ -9,8 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { CommunityService } from '@/lib/supabase/services';
+import { useSupabaseAuth } from '@/lib/auth/supabase-auth';
 
 // Sample post data - in real app, this would come from API
+/*
 const samplePost = {
   id: 1,
   user: {
@@ -47,22 +50,30 @@ const samplePost = {
     },
   ],
 };
+*/
 
 interface CommentProps {
-  comment: typeof samplePost.commentsData[0];
+  comment: {
+    id: string;
+    post_id: string;
+    user_id: string;
+    content: string;
+    created_at: string;
+    updated_at: string;
+  };
 }
 
 function Comment({ comment }: CommentProps) {
   return (
     <div className="flex gap-4 group">
       <div className="h-10 w-10 flex-shrink-0 rounded-full bg-gradient-to-br from-sage to-mint flex items-center justify-center text-white font-bold text-sm">
-        {comment.user.name.charAt(0)}
+        U
       </div>
       <div className="flex-1">
         <div className="bg-gray-800 rounded-2xl px-4 py-3 border border-gray-700 group-hover:border-gray-600 transition-colors">
           <div className="flex items-baseline gap-2 mb-1">
-            <p className="text-white font-bold text-sm">{comment.user.name}</p>
-            <p className="text-gray-400 text-xs">{comment.timestamp}</p>
+            <p className="text-white font-bold text-sm">User</p>
+            <p className="text-gray-400 text-xs">{new Date(comment.created_at).toLocaleDateString()}</p>
           </div>
           <p className="text-gray-200 text-sm leading-relaxed">{comment.content}</p>
         </div>
@@ -74,27 +85,123 @@ function Comment({ comment }: CommentProps) {
 export default function PostDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const colors = usePlantColors();
-  const [isLiked, setIsLiked] = useState(samplePost.isLiked);
-  const [likesCount, setLikesCount] = useState(samplePost.likes);
+  // const colors = usePlantColors();
+  const { user, isAuthenticated } = useSupabaseAuth();
+  const [post, setPost] = useState<{
+    id: string;
+    user_id: string;
+    content: string;
+    image_url: string | null;
+    likes_count: number;
+    comments_count: number;
+    created_at: string;
+    updated_at: string;
+    users: {
+      id: string;
+      username: string;
+      full_name: string;
+      avatar_url?: string;
+    };
+  } | null>(null);
+  const [comments, setComments] = useState<{
+    id: string;
+    post_id: string;
+    user_id: string;
+    content: string;
+    created_at: string;
+    updated_at: string;
+  }[]>([]);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
   const [newComment, setNewComment] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isPostingComment, setIsPostingComment] = useState(false);
 
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-    setLikesCount(prev => isLiked ? prev - 1 : prev + 1);
+  const handleLike = async () => {
+    if (!user || !isAuthenticated) {
+      router.push('/login');
+      return;
+    }
+
+    try {
+      if (isLiked) {
+        // Unlike the post
+        await CommunityService.unlikePost(params.id as string, user.id);
+        setLikesCount(prev => prev - 1);
+      } else {
+        // Like the post
+        await CommunityService.likePost(params.id as string, user.id);
+        setLikesCount(prev => prev + 1);
+      }
+      setIsLiked(!isLiked);
+    } catch (error) {
+      console.error('Error toggling like:', error);
+    }
   };
 
-  const handleAddComment = () => {
+  const handleAddComment = async () => {
     if (!newComment.trim()) return;
-    console.log('Adding comment:', newComment);
-    setNewComment('');
-    // Here you would typically send the comment to your backend
+    if (!user || !isAuthenticated) {
+      router.push('/login');
+      return;
+    }
+
+    try {
+      setIsPostingComment(true);
+      const newCommentData = await CommunityService.createComment({
+        post_id: params.id as string,
+        user_id: user.id,
+        content: newComment.trim(),
+      });
+
+      if (newCommentData) {
+        setComments(prev => [newCommentData, ...prev]);
+        setNewComment('');
+      }
+    } catch (error) {
+      console.error('Error adding comment:', error);
+    } finally {
+      setIsPostingComment(false);
+    }
   };
 
   const handleShare = () => {
     console.log('Sharing post');
     // Implement sharing functionality
   };
+
+  // Fetch post data on component mount
+  React.useEffect(() => {
+    const fetchPostData = async () => {
+      if (!params.id) return;
+      
+      try {
+        setIsLoading(true);
+        // Fetch post details
+        const postData = await CommunityService.getPostById(params.id as string);
+        if (postData) {
+          setPost(postData);
+          setLikesCount(postData.likes_count || 0);
+          
+          // Fetch comments
+          const commentsData = await CommunityService.getPostComments(params.id as string);
+          setComments(commentsData || []);
+          
+          // Check if user has liked this post
+          if (user) {
+            const userLike = await CommunityService.hasUserLikedPost(user.id, params.id as string);
+            setIsLiked(userLike);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching post data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPostData();
+  }, [params.id, user]);
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col">
@@ -143,49 +250,48 @@ export default function PostDetailPage() {
             </nav>
           </div>
 
-          {/* Post Card */}
-          <Card className="bg-gray-800 rounded-2xl overflow-hidden border-gray-700">
-            {/* User Info Header */}
-            <div className="p-6 flex items-center gap-4 border-b border-gray-700">
-              <div className="h-12 w-12 flex-shrink-0 rounded-full bg-gradient-to-br from-sage to-mint flex items-center justify-center text-white font-bold">
-                {samplePost.user.name.charAt(0)}
-              </div>
-              <div>
-                <p className="text-white font-bold">{samplePost.user.name}</p>
-                <p className="text-sm text-gray-400">Posted {samplePost.timestamp}</p>
+          {/* Loading State */}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sage mx-auto mb-4"></div>
+                <p className="text-gray-400">Loading post...</p>
               </div>
             </div>
+          ) : post ? (
+            /* Post Card */
+            <Card className="bg-gray-800 rounded-2xl overflow-hidden border-gray-700">
+              {/* User Info Header */}
+              <div className="p-6 flex items-center gap-4 border-b border-gray-700">
+                <div className="h-12 w-12 flex-shrink-0 rounded-full bg-gradient-to-br from-sage to-mint flex items-center justify-center text-white font-bold">
+                  {post.users?.full_name?.charAt(0) || 'U'}
+                </div>
+                <div>
+                  <p className="text-white font-bold">{post.users?.full_name || 'Unknown User'}</p>
+                  <p className="text-sm text-gray-400">Posted {new Date(post.created_at).toLocaleDateString()}</p>
+                </div>
+              </div>
 
             {/* Post Content */}
             <div className="p-6">
               <p className="text-white text-base leading-relaxed mb-4">
-                {samplePost.content}
+                {post.content}
               </p>
 
               {/* Post Image */}
-              <div className="mb-6">
-                <div className="w-full aspect-[4/3] rounded-xl overflow-hidden relative">
-                  <Image
-                    src={samplePost.image}
-                    alt="Post image"
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 60vw"
-                  />
+              {post.image_url && (
+                <div className="mb-6">
+                  <div className="w-full aspect-[4/3] rounded-xl overflow-hidden relative">
+                    <Image
+                      src={post.image_url}
+                      alt="Post image"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 60vw"
+                    />
+                  </div>
                 </div>
-              </div>
-
-              {/* Hashtags */}
-              <div className="flex flex-wrap gap-2 mb-6">
-                {samplePost.tags.map((tag, index) => (
-                  <span 
-                    key={index}
-                    className="bg-gray-700 text-gray-300 text-xs font-semibold px-3 py-1 rounded-full"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
+              )}
             </div>
 
             {/* Interaction Bar */}
@@ -209,7 +315,7 @@ export default function PostDetailPage() {
                 className="flex items-center gap-2 px-4 py-3 text-gray-400 hover:text-sage hover:bg-gray-700 transition-colors w-1/3 justify-center"
               >
                 <MessageCircle className="h-6 w-6" />
-                <span className="text-sm font-bold">{samplePost.comments} Comments</span>
+                <span className="text-sm font-bold">{comments.length} Comments</span>
               </Button>
 
               <div className="w-px h-6 bg-gray-700"></div>
@@ -220,19 +326,23 @@ export default function PostDetailPage() {
                 className="flex items-center gap-2 px-4 py-3 text-gray-400 hover:text-sage hover:bg-gray-700 transition-colors w-1/3 justify-center"
               >
                 <Share className="h-6 w-6" />
-                <span className="text-sm font-bold">{samplePost.shares} Shares</span>
+                <span className="text-sm font-bold">0 Shares</span>
               </Button>
             </div>
 
             {/* Comments Section */}
             <div className="p-6">
-              <h3 className="text-lg font-bold text-white mb-4">Comments ({samplePost.comments})</h3>
+              <h3 className="text-lg font-bold text-white mb-4">Comments ({comments.length})</h3>
               
               {/* Comments List */}
               <div className="space-y-4">
-                {samplePost.commentsData.map((comment) => (
-                  <Comment key={comment.id} comment={comment} />
-                ))}
+                {comments.length > 0 ? (
+                  comments.map((comment) => (
+                    <Comment key={comment.id} comment={comment} />
+                  ))
+                ) : (
+                  <p className="text-gray-400 text-center py-4">No comments yet. Be the first to comment!</p>
+                )}
               </div>
             </div>
 
@@ -274,6 +384,11 @@ export default function PostDetailPage() {
               </div>
             </div>
           </Card>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-gray-400">Post not found</p>
+          </div>
+        )}
         </div>
       </main>
     </div>

@@ -1,17 +1,20 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Search, MessageCircle, Heart, Flag, MoreHorizontal, Plus } from 'lucide-react';
-import { usePlantColors } from '@/lib/theme';
+import { useSupabaseAuth } from '@/lib/auth/supabase-auth';
+import { CommunityService } from '@/lib/supabase/services';
+import type { PostWithUser } from '@/types/api';
+// import { usePlantColors } from '@/lib/theme';
 import BottomNavigation from '@/components/ui/bottom-navigation';
 import PlantopiaHeader from '@/components/ui/plantopia-header';
 import PlantFilterDropdown from '@/components/ui/plant-filter-dropdown';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { filterPlantsByCategory } from '@/lib/data/plants';
+// import { filterPlantsByCategory } from '@/lib/data/plants';
 
 // Sample post data
 const samplePosts = [
@@ -230,9 +233,33 @@ function UserListItem({ user, onFollow, onUnfollow }: UserListItemProps) {
 
 export default function CommunityPage() {
   const router = useRouter();
+  const { user, isAuthenticated } = useSupabaseAuth();
   const [activeTab, setActiveTab] = useState<TabType>('posts');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All Plants');
+  const [posts, setPosts] = useState<PostWithUser[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Load community data from Supabase
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      loadCommunityData();
+    } else if (!isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, user, router]);
+
+  const loadCommunityData = async () => {
+    try {
+      setIsLoading(true);
+      const postsData = await CommunityService.getPosts();
+      setPosts(postsData);
+    } catch (err) {
+      console.error('Error loading community data:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleLike = (postId: number) => {
     console.log('Liked post:', postId);

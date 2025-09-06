@@ -2,13 +2,13 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/lib/auth';
+import { useSupabaseAuth } from '@/lib/auth/supabase-auth';
 import { useThemeColors } from '@/lib/theme/hooks';
 import { cn } from '@/lib/utils';
 import { ArrowLeft, Loader2, CheckCircle } from 'lucide-react';
 
 export default function ForgotPasswordPage() {
-  const { forgotPassword } = useAuth();
+  const { forgotPassword } = useSupabaseAuth();
   const themeColors = useThemeColors();
   
   const [email, setEmail] = useState('');
@@ -81,12 +81,12 @@ export default function ForgotPasswordPage() {
           <div>
             <h1 className="text-3xl font-bold text-foreground mb-2">Check Your Email</h1>
             <p className="text-muted-foreground">
-              We've sent a password reset link to <strong>{email}</strong>
+              We&apos;ve sent a password reset link to <strong>{email}</strong>
             </p>
           </div>
           
           <div className="text-sm text-muted-foreground">
-            <p>Didn't receive the email? Check your spam folder or</p>
+            <p>Didn&apos;t receive the email? Check your spam folder or</p>
             <button
               onClick={() => {
                 setIsSuccess(false);
@@ -132,7 +132,7 @@ export default function ForgotPasswordPage() {
         <div className="text-center">
           <h1 className="text-4xl font-bold text-foreground">Forgot Password?</h1>
           <p className="mt-2 text-muted-foreground">
-            No worries! Enter your email and we'll send you reset instructions.
+            No worries! Enter your email and we&apos;ll send you reset instructions.
           </p>
         </div>
 

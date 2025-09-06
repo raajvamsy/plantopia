@@ -254,7 +254,7 @@ const ThemeDemo: React.FC = () => {
             </h3>
             <div className="space-y-2 text-sm font-mono">
               <div style={{ color: systemColors.mutedForeground }}>
-                <span style={{ color: plantColors.moss }}>// Using hooks:</span>
+                <span style={{ color: plantColors.moss }}>{/* Using hooks: */}</span>
               </div>
               <div style={{ color: systemColors.mutedForeground }}>
                 const colors = usePlantColors();
@@ -263,13 +263,13 @@ const ThemeDemo: React.FC = () => {
                 const isDark = useIsDarkTheme();
               </div>
               <div style={{ color: systemColors.mutedForeground }}>
-                <span style={{ color: plantColors.moss }}>// Using CSS variables:</span>
+                <span style={{ color: plantColors.moss }}>{/* Using CSS variables: */}</span>
               </div>
               <div style={{ color: systemColors.mutedForeground }}>
-                className="bg-plantopia-sage text-white"
+                className=&quot;bg-plantopia-sage text-white&quot;
               </div>
               <div style={{ color: systemColors.mutedForeground }}>
-                style=&#123;&#123; color: '{plantVariables.sage}' &#125;&#125;
+                style=&#123;&#123; color: &apos;{plantVariables.sage}&apos; &#125;&#125;
               </div>
             </div>
           </div>

@@ -118,7 +118,7 @@ export default function FeedbackPage() {
                   Share Your Thoughts
                 </h2>
                 <p className="text-lg text-muted-foreground">
-                  We'd love to hear from you! Help us make Plantopia better.
+                  We&apos;d love to hear from you! Help us make Plantopia better.
                 </p>
               </div>
 

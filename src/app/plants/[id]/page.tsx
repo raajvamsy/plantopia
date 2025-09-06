@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Image from 'next/image';
-import { useAuth } from '@/lib/auth';
+import { useSupabaseAuth } from '@/lib/auth/supabase-auth';
 import { usePlantColors } from '@/lib/theme';
 import { 
   Settings, 
@@ -21,6 +21,8 @@ import TabNavigation from '@/components/ui/tab-navigation';
 import AchievementCard from '@/components/ui/achievement-card';
 import BottomNavigation from '@/components/ui/bottom-navigation';
 import PlantopiaHeader from '@/components/ui/plantopia-header';
+import { PlantService, AchievementService } from '@/lib/supabase/services';
+import type { Plant, Achievement } from '@/types/api';
 
 // Mock plant data
 const plantsData = {
@@ -105,12 +107,42 @@ const achievements = [
 export default function PlantDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useSupabaseAuth();
   const colors = usePlantColors();
   const [activeTab, setActiveTab] = useState('growth-history');
+  const [plant, setPlant] = useState<Plant | null>(null);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const plantId = params.id as string;
-  const plant = plantsData[plantId as keyof typeof plantsData];
+
+  // Fetch plant data on component mount
+  React.useEffect(() => {
+    const fetchPlantData = async () => {
+      if (!plantId) return;
+      
+      try {
+        setIsLoading(true);
+        // Fetch plant details
+        const plantData = await PlantService.getPlantById(plantId);
+        if (plantData) {
+          setPlant(plantData);
+          
+          // Fetch user achievements (plant-related achievements)
+          if (user?.id) {
+            const achievementsData = await AchievementService.getUserAchievements(user.id);
+            setAchievements(achievementsData || []);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching plant data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPlantData();
+  }, [plantId]);
 
   // Redirect if not authenticated
   React.useEffect(() => {
@@ -135,7 +167,7 @@ export default function PlantDetailPage() {
     );
   }
 
-  const userName = user.name || user.username || 'Plant Lover';
+  const userName = user?.full_name || user?.username || 'Plant Lover';
 
   const tabs = [
     { id: 'growth-history', label: 'Growth History', isActive: activeTab === 'growth-history' },
@@ -152,21 +184,27 @@ export default function PlantDetailPage() {
         <div className="max-w-4xl mx-auto">
           {/* Hero Image */}
           <div className="relative w-full h-64 bg-muted rounded-2xl overflow-hidden shadow-lg mb-6">
-            <Image
-              src={plant.heroImageUrl}
-              alt={`${plant.name} detail view`}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
-              placeholder="blur"
-              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
-              priority
-            />
+            {plant.image_url ? (
+              <Image
+                src={plant.image_url}
+                alt={`${plant.name} detail view`}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
+                placeholder="blur"
+                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+                priority
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-6xl">
+                🌱
+              </div>
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
             <div className="absolute bottom-4 left-4 text-white">
               <h2 className="text-2xl sm:text-3xl font-bold">{plant.name}</h2>
               <p className="text-sm sm:text-base opacity-90">
-                Health: {plant.health}% • Moisture: {plant.moisture}% • Sun: {plant.sunlight}%
+                Health: {plant.health || 0}% • Moisture: {plant.moisture || 0}% • Sun: {plant.sunlight || 0}%
               </p>
             </div>
           </div>
@@ -227,15 +265,21 @@ export default function PlantDetailPage() {
           <div>
             <h3 className="text-foreground text-xl sm:text-2xl font-bold mb-4">Achievements</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {achievements.map((achievement) => (
-                <AchievementCard
-                  key={achievement.id}
-                  title={achievement.title}
-                  icon={achievement.icon}
-                  completed={achievement.completed}
-                  onClick={() => console.log(`Achievement clicked: ${achievement.title}`)}
-                />
-              ))}
+              {achievements.length > 0 ? (
+                achievements.map((achievement) => (
+                  <AchievementCard
+                    key={achievement.id}
+                    title={achievement.title}
+                    icon={achievement.icon || '🏆'}
+                    completed={achievement.completed}
+                    onClick={() => console.log(`Achievement clicked: ${achievement.title}`)}
+                  />
+                ))
+              ) : (
+                <div className="col-span-full text-center py-8 text-muted-foreground">
+                  No achievements yet. Keep caring for your plant to earn them!
+                </div>
+              )}
             </div>
           </div>
         </div>

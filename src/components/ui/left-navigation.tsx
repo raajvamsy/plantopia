@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter, usePathname } from 'next/navigation';
-import { useAuth } from '@/lib/auth';
+import { useSupabaseAuth } from '@/lib/auth/supabase-auth';
 import { usePlantColors } from '@/lib/theme';
 import { 
   Menu,
@@ -123,7 +123,7 @@ interface LeftNavigationNavProps {
 export function LeftNavigation({ isOpen, onClose }: LeftNavigationNavProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const { user, logout } = useSupabaseAuth();
   const colors = usePlantColors();
   const [mounted, setMounted] = useState(false);
 
@@ -173,7 +173,7 @@ export function LeftNavigation({ isOpen, onClose }: LeftNavigationNavProps) {
     }
   };
 
-  const userName = user?.name || user?.username || 'Plant Lover';
+  const userName = user?.full_name || user?.username || 'Plant Lover';
 
   if (!mounted) return null;
 

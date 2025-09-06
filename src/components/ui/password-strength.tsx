@@ -16,7 +16,7 @@ interface StrengthResult {
   color: string;
 }
 
-const calculatePasswordStrength = (password: string, themeColors: any): StrengthResult => {
+const calculatePasswordStrength = (password: string, themeColors: Record<string, string>): StrengthResult => {
   if (!password) {
     return { score: 0, label: '', color: themeColors.border };
   }

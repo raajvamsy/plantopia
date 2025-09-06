@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useThemeColors } from '@/lib/theme/hooks';
 import { PasswordStrength } from '@/components/ui/password-strength';
 import { cn } from '@/lib/utils';
@@ -181,7 +182,7 @@ export default function PasswordDemoPage() {
 
         {/* Back to Main */}
         <div className="text-center">
-          <a
+          <Link
             href="/"
             className={cn(
               "inline-flex items-center px-6 py-3 rounded-full font-medium transition-all duration-300 transform hover:scale-105",
@@ -190,7 +191,7 @@ export default function PasswordDemoPage() {
             style={{ backgroundColor: themeColors.sage }}
           >
             ← Back to Home
-          </a>
+          </Link>
         </div>
       </div>
     </div>

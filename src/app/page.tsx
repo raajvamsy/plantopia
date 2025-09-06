@@ -162,7 +162,7 @@ export default function Home() {
                       AI-Driven Custom Care Plans
                     </h2>
                     <p className="text-muted-foreground text-sm sm:text-base md:text-lg mt-3 leading-relaxed">
-                      Our intelligent system analyzes your plant's species, environment, and your care habits to generate a unique plan. As your plant grows and seasons change, the AI dynamically adjusts watering schedules, fertilizer recommendations, and light exposure, ensuring optimal health and vibrant growth.
+                      Our intelligent system analyzes your plant&apos;s species, environment, and your care habits to generate a unique plan. As your plant grows and seasons change, the AI dynamically adjusts watering schedules, fertilizer recommendations, and light exposure, ensuring optimal health and vibrant growth.
                     </p>
                     
                     <div className="mt-4 sm:mt-6 flex flex-row gap-2 sm:gap-3 md:gap-4 justify-center md:justify-start flex-wrap">

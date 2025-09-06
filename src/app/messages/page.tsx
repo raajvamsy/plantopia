@@ -1,85 +1,27 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search } from 'lucide-react';
+import { useSupabaseAuth } from '@/lib/auth/supabase-auth';
+import { MessageService } from '@/lib/supabase/services';
 import { usePlantColors } from '@/lib/theme';
+import type { ConversationSummary } from '@/types/api';
 import { PlantopiaHeader, MobilePageWrapper, ResponsiveContainer } from '@/components/ui';
 import { cn } from '@/lib/utils';
 
-// Sample message data based on the provided design
-const sampleMessages = [
-  {
-    id: 1,
-    user: {
-      name: 'Sophia Carter',
-      avatar: '/api/placeholder/56/56',
-      isOnline: true,
-    },
-    lastMessage: "Amazing! Can't wait to see your progress.",
-    timestamp: '2d ago',
-    unread: false,
-  },
-  {
-    id: 2,
-    user: {
-      name: 'Liam Harper',
-      avatar: '/api/placeholder/56/56',
-      isOnline: false,
-    },
-    lastMessage: 'Sure, I\'ll send you some tips.',
-    timestamp: '1w ago',
-    unread: false,
-  },
-  {
-    id: 3,
-    user: {
-      name: 'Ava Bennett',
-      avatar: '/api/placeholder/56/56',
-      isOnline: false,
-    },
-    lastMessage: 'You too! Let\'s trade cuttings sometime.',
-    timestamp: '2w ago',
-    unread: false,
-  },
-  {
-    id: 4,
-    user: {
-      name: 'Noah Parker',
-      avatar: '/api/placeholder/56/56',
-      isOnline: false,
-    },
-    lastMessage: 'My plant is flowering!',
-    timestamp: '3w ago',
-    unread: false,
-  },
-  {
-    id: 5,
-    user: {
-      name: 'Isabella Reed',
-      avatar: '/api/placeholder/56/56',
-      isOnline: true,
-    },
-    lastMessage: 'Just joined the app, looking forward to growing!',
-    timestamp: '1m ago',
-    unread: true,
-  },
-  {
-    id: 6,
-    user: {
-      name: 'Jackson Hayes',
-      avatar: '/api/placeholder/56/56',
-      isOnline: false,
-    },
-    lastMessage: 'How do I earn water droplets?',
-    timestamp: '2m ago',
-    unread: true,
-  },
-];
+export default function MessagesPage() {
+  const router = useRouter();
+  const { user, isAuthenticated } = useSupabaseAuth();
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Message data state
+  const [messages, setMessages] = useState<ConversationSummary[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
 interface MessageItemProps {
-  message: typeof sampleMessages[0];
-  onClick: (messageId: number) => void;
+  message: ConversationSummary;
+  onClick: (messageId: string) => void;
 }
 
 function MessageItem({ message, onClick }: MessageItemProps) {
@@ -87,7 +29,7 @@ function MessageItem({ message, onClick }: MessageItemProps) {
 
   return (
     <button
-      onClick={() => onClick(message.id)}
+      onClick={() => onClick(message.otherUser.id)}
       className="flex items-center gap-4 w-full px-4 sm:px-6 lg:px-8 py-4 hover:bg-secondary/50 transition-colors duration-200 text-left"
     >
       {/* Avatar with online status */}
@@ -99,9 +41,9 @@ function MessageItem({ message, onClick }: MessageItemProps) {
             boxShadow: `0 2px 8px ${colors.sage}20`
           }}
         >
-          {message.user.name.charAt(0).toUpperCase()}
+          {message.otherUser.full_name.charAt(0).toUpperCase()}
         </div>
-        {message.user.isOnline && (
+        {message.otherUser.is_online && (
           <div 
             className="absolute bottom-0 right-0 h-4 w-4 rounded-full border-2 border-background"
             style={{ backgroundColor: colors.sage }}
@@ -114,26 +56,26 @@ function MessageItem({ message, onClick }: MessageItemProps) {
         <div className="flex justify-between items-center mb-1">
           <p className={cn(
             "text-base font-semibold truncate",
-            message.unread ? "text-foreground" : "text-foreground"
+            message.unreadCount > 0 ? "text-foreground" : "text-foreground"
           )}>
-            {message.user.name}
+            {message.otherUser.full_name}
           </p>
           <p className="text-xs text-muted-foreground flex-shrink-0 ml-2">
-            {message.timestamp}
+            {new Date(message.lastMessage.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </p>
         </div>
         <p className={cn(
           "text-sm truncate",
-          message.unread 
+          message.unreadCount > 0
             ? "text-foreground font-medium" 
             : "text-muted-foreground"
         )}>
-          {message.lastMessage}
+          {message.lastMessage.content}
         </p>
       </div>
 
       {/* Unread indicator */}
-      {message.unread && (
+      {message.unreadCount > 0 && (
         <div 
           className="h-3 w-3 rounded-full flex-shrink-0"
           style={{ backgroundColor: colors.sage }}
@@ -143,20 +85,35 @@ function MessageItem({ message, onClick }: MessageItemProps) {
   );
 }
 
-export default function MessagesPage() {
-  const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState('');
+  // Load messages data from Supabase
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      loadMessagesData();
+    } else if (!isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, user, router]);
 
-  const handleMessageClick = (messageId: number) => {
+  const loadMessagesData = async () => {
+    try {
+      setIsLoading(true);
+      const messagesData = await MessageService.getRecentConversations(user!.id);
+      setMessages(messagesData);
+    } catch (err) {
+      console.error('Error loading messages data:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleMessageClick = (messageId: string) => {
     // Navigate to individual message conversation
     router.push(`/messages/${messageId}`);
   };
 
-
-
-  const filteredMessages = sampleMessages.filter(message =>
-    message.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    message.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredMessages = messages.filter(message =>
+    message.otherUser.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    message.lastMessage.content.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -188,7 +145,7 @@ export default function MessagesPage() {
           {filteredMessages.length > 0 ? (
             filteredMessages.map((message) => (
               <MessageItem
-                key={message.id}
+                key={message.otherUser.id}
                 message={message}
                 onClick={handleMessageClick}
               />
