@@ -710,6 +710,7 @@ export interface PlantIdentificationResponse {
   scientific_name: string;
   family: string;
   difficulty_level: 'easy' | 'medium' | 'hard';
+  additional_notes?: string;
 }
 
 export interface CareAdviceRequest {
@@ -725,6 +726,8 @@ export interface CareAdviceResponse {
   recommended_actions: string[];
   timeline: string;
   confidence: number;
+  preventive_measures?: string[];
+  warning_signs?: string[];
 }
 
 export interface DiseaseDetectionRequest {
@@ -740,6 +743,8 @@ export interface DiseaseDetectionResponse {
   treatment_steps: string[];
   prevention_tips: string[];
   is_contagious: boolean;
+  expected_recovery_time?: string;
+  professional_help_needed?: boolean;
 }
 
 export interface GeneralChatRequest {

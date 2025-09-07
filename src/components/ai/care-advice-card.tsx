@@ -289,14 +289,14 @@ export function CareAdviceCard({
             )}
 
             {/* Additional Fields from Extended Response */}
-            {(result as Record<string, unknown>).preventive_measures && Array.isArray((result as Record<string, unknown>).preventive_measures) && (
+            {result.preventive_measures && result.preventive_measures.length > 0 && (
               <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                 <div className="flex items-center gap-2 mb-3">
                   <TrendingUp className="h-4 w-4 text-green-600" />
                   <span className="font-medium text-green-900">Preventive Measures</span>
                 </div>
                 <div className="space-y-2">
-                  {((result as Record<string, unknown>).preventive_measures as string[]).map((measure: string, index: number) => (
+                  {result.preventive_measures.map((measure, index) => (
                     <div key={index} className="flex items-start gap-2">
                       <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
                       <span className="text-sm text-green-800">{measure}</span>
@@ -306,14 +306,14 @@ export function CareAdviceCard({
               </div>
             )}
 
-            {(result as Record<string, unknown>).warning_signs && Array.isArray((result as Record<string, unknown>).warning_signs) && (
+            {result.warning_signs && result.warning_signs.length > 0 && (
               <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <div className="flex items-center gap-2 mb-3">
                   <AlertTriangle className="h-4 w-4 text-yellow-600" />
                   <span className="font-medium text-yellow-900">Warning Signs to Watch For</span>
                 </div>
                 <div className="space-y-2">
-                  {((result as Record<string, unknown>).warning_signs as string[]).map((sign: string, index: number) => (
+                  {result.warning_signs.map((sign, index) => (
                     <div key={index} className="flex items-start gap-2">
                       <AlertTriangle className="h-4 w-4 text-yellow-600 flex-shrink-0 mt-0.5" />
                       <span className="text-sm text-yellow-800">{sign}</span>

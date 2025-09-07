@@ -1,7 +1,8 @@
 // AI Services Index - Plantopia PWA
 // This file exports all AI-related services and utilities
 
-export { GeminiAIService } from './gemini-service';
+import { GeminiAIService } from './gemini-service';
+export { GeminiAIService };
 export { 
   AI_PROMPTS, 
   formatPrompt, 

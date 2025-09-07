@@ -275,18 +275,18 @@ export function DiseaseDetectionCard({
             )}
 
             {/* Additional Info */}
-            {(result as Record<string, unknown>).expected_recovery_time && (
+            {result.expected_recovery_time && (
               <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <div className="flex items-center gap-2 mb-2">
                   <Clock className="h-4 w-4 text-yellow-600" />
                   <span className="font-medium text-yellow-900">Recovery Timeline</span>
                 </div>
-                <p className="text-sm text-yellow-800">{(result as Record<string, unknown>).expected_recovery_time as string}</p>
+                <p className="text-sm text-yellow-800">{result.expected_recovery_time}</p>
               </div>
             )}
 
             {/* Professional Help Warning */}
-            {(result as Record<string, unknown>).professional_help_needed && (
+            {result.professional_help_needed && (
               <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
                 <div className="flex items-start gap-3">
                   <AlertTriangle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />

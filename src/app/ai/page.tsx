@@ -24,7 +24,7 @@ import {
   XCircle,
   Settings
 } from 'lucide-react';
-import { useAuth } from '@/lib/auth';
+import { useSupabaseAuth } from '@/lib/auth';
 import { checkAIServiceStatus, initializeAIServices, testAIServices } from '@/lib/ai';
 import { PlantService } from '@/lib/supabase/services/plants';
 import { TaskService } from '@/lib/supabase/services/tasks';
@@ -48,7 +48,7 @@ interface AIServiceStatus {
 }
 
 export default function AIPage() {
-  const { user } = useAuth();
+  const { user } = useSupabaseAuth();
   const [activeTab, setActiveTab] = useState('chat');
   const [serviceStatus, setServiceStatus] = useState<AIServiceStatus | null>(null);
   const [isTestingConnection, setIsTestingConnection] = useState(false);
