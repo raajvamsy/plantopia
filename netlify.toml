@@ -3,8 +3,18 @@
   command = "npm run build"
 
 [build.environment]
-  NODE_VERSION = "18"
-  NPM_VERSION = "9"
+  NODE_VERSION = "22"
+  NPM_VERSION = "10"
+
+# Environment variables for all contexts
+[context.production.environment]
+  NODE_ENV = "production"
+
+[context.deploy-preview.environment]
+  NODE_ENV = "development"
+
+[context.branch-deploy.environment]
+  NODE_ENV = "development"
 
 [[redirects]]
   from = "/*"

@@ -55,6 +55,16 @@ export class GeminiAIService {
     try {
       const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
       
+      // Debug environment variables
+      console.log('🔍 Gemini Environment Variables Debug:', {
+        NODE_ENV: process.env.NODE_ENV,
+        hasGeminiApiKey: !!process.env.GEMINI_API_KEY,
+        hasPublicGeminiApiKey: !!process.env.NEXT_PUBLIC_GEMINI_API_KEY,
+        geminiKeyLength: apiKey ? apiKey.length : 0,
+        geminiKeyPrefix: apiKey ? apiKey.substring(0, 10) + '...' : 'undefined',
+        allGeminiKeys: Object.keys(process.env).filter(key => key.includes('GEMINI'))
+      });
+      
       if (!apiKey) {
         console.error('❌ Gemini API key not found. Please set GEMINI_API_KEY environment variable.');
         return false;
