@@ -53,11 +53,18 @@ export class GeminiAIService {
   // Initialize the Gemini AI service
   static initialize(): boolean {
     try {
+      // Check if we're on client-side and already initialized
+      if (typeof window !== 'undefined' && this.isInitialized) {
+        console.log('✅ Gemini AI service already initialized (client-side check)');
+        return true;
+      }
+
       const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
       
       // Debug environment variables
       console.log('🔍 Gemini Environment Variables Debug:', {
         NODE_ENV: process.env.NODE_ENV,
+        isClientSide: typeof window !== 'undefined',
         hasGeminiApiKey: !!process.env.GEMINI_API_KEY,
         hasPublicGeminiApiKey: !!process.env.NEXT_PUBLIC_GEMINI_API_KEY,
         geminiKeyLength: apiKey ? apiKey.length : 0,
@@ -66,6 +73,11 @@ export class GeminiAIService {
       });
       
       if (!apiKey) {
+        // If we're on client-side and no public key, that's expected
+        if (typeof window !== 'undefined') {
+          console.log('ℹ️ Client-side: Gemini API key not available (this is expected for security)');
+          return this.isInitialized; // Return current state
+        }
         console.error('❌ Gemini API key not found. Please set GEMINI_API_KEY environment variable.');
         return false;
       }
@@ -435,9 +447,14 @@ export class GeminiAIService {
   } {
     const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
     
+    // On client-side, we can't check for server-side env vars
+    const apiKeyPresent = typeof window !== 'undefined' 
+      ? this.isInitialized // If initialized, assume key was present
+      : !!apiKey;
+    
     return {
       initialized: this.isInitialized,
-      apiKeyPresent: !!apiKey,
+      apiKeyPresent,
       ready: this.isReady(),
     };
   }
