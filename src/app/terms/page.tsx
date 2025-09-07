@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { X, FileText, Shield, Info, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MobilePageWrapper } from '@/components/ui/mobile-page-wrapper';
-import { cn } from '@/lib/utils';
 
 export default function TermsPage() {
   const router = useRouter();

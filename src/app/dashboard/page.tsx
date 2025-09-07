@@ -184,11 +184,11 @@ export default function DashboardPage() {
           </section>
         </div>
 
-        {/* Progress Section */}
+        {/* Progress Section
         <section className="bg-card p-4 sm:p-6 rounded-2xl shadow-sm border border-border mx-1 sm:mx-0">
           <SectionHeader title="Reward Bloom Progress" />
           <ProgressBar value={60} />
-        </section>
+        </section> */}
       </PageLayout>
     </AuthGuard>
   );

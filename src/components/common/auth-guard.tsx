@@ -19,7 +19,7 @@ export function AuthGuard({
   fallback = null 
 }: AuthGuardProps) {
   const router = useRouter();
-  const { user, isAuthenticated, isLoading } = useSupabaseAuth();
+  const { isAuthenticated, isLoading } = useSupabaseAuth();
 
   useEffect(() => {
     if (!isLoading) {

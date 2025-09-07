@@ -7,7 +7,7 @@
 
 export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled';
 export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
-export type TaskType = 'watering' | 'fertilizing' | 'pruning' | 'repotting' | 'other';
+export type TaskType = 'watering' | 'fertilizing' | 'pruning' | 'repotting' | 'pest_control' | 'other';
 export type PlantCategory = 'indoor' | 'outdoor' | 'succulent' | 'herb' | 'flower' | 'vegetable' | 'tree' | 'other';
 
 // ============================================================================
@@ -44,6 +44,10 @@ export interface UserInsert {
   level?: number;
   experience_points?: number;
   water_droplets?: number;
+}
+
+export interface UserInsertWithId extends Omit<UserInsert, 'id'> {
+  id: string; // Required for auth signup
 }
 
 export interface UserUpdate {
@@ -265,6 +269,7 @@ export interface Message {
   content: string;
   is_read: boolean;
   created_at: string;
+  updated_at: string;
 }
 
 export interface MessageInsert {
@@ -274,6 +279,7 @@ export interface MessageInsert {
   content: string;
   is_read?: boolean;
   created_at?: string;
+  updated_at?: string;
 }
 
 export interface MessageUpdate {
@@ -283,6 +289,7 @@ export interface MessageUpdate {
   content?: string;
   is_read?: boolean;
   created_at?: string;
+  updated_at?: string;
 }
 
 export interface Achievement {
@@ -642,6 +649,111 @@ export interface Notification {
   data?: Record<string, unknown>;
   read: boolean;
   created_at: string;
+}
+
+// ============================================================================
+// AI INTERACTION TYPES (for Gemini 2.5 Flash Lite integration)
+// ============================================================================
+
+export type AIInteractionType = 'plant_identification' | 'care_advice' | 'disease_diagnosis' | 'general_chat';
+
+export interface AIInteraction {
+  id: string;
+  user_id: string;
+  plant_id: string | null;
+  interaction_type: AIInteractionType;
+  user_message: string;
+  ai_response: string;
+  confidence_score: number | null;
+  image_url: string | null;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+}
+
+export interface AIInteractionInsert {
+  id?: string;
+  user_id: string;
+  plant_id?: string | null;
+  interaction_type: AIInteractionType;
+  user_message: string;
+  ai_response: string;
+  confidence_score?: number | null;
+  image_url?: string | null;
+  metadata?: Record<string, unknown> | null;
+  created_at?: string;
+}
+
+export interface AIInteractionUpdate {
+  id?: string;
+  user_id?: string;
+  plant_id?: string | null;
+  interaction_type?: AIInteractionType;
+  user_message?: string;
+  ai_response?: string;
+  confidence_score?: number | null;
+  image_url?: string | null;
+  metadata?: Record<string, unknown> | null;
+  created_at?: string;
+}
+
+// AI Request/Response types
+export interface PlantIdentificationRequest {
+  image_url: string;
+  user_message?: string;
+}
+
+export interface PlantIdentificationResponse {
+  species: string;
+  confidence: number;
+  care_instructions: string[];
+  common_names: string[];
+  scientific_name: string;
+  family: string;
+  difficulty_level: 'easy' | 'medium' | 'hard';
+}
+
+export interface CareAdviceRequest {
+  plant_id?: string;
+  plant_species?: string;
+  symptoms?: string[];
+  user_message: string;
+}
+
+export interface CareAdviceResponse {
+  advice: string;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  recommended_actions: string[];
+  timeline: string;
+  confidence: number;
+}
+
+export interface DiseaseDetectionRequest {
+  image_url: string;
+  plant_species?: string;
+  symptoms_description: string;
+}
+
+export interface DiseaseDetectionResponse {
+  disease_name: string;
+  confidence: number;
+  severity: 'mild' | 'moderate' | 'severe';
+  treatment_steps: string[];
+  prevention_tips: string[];
+  is_contagious: boolean;
+}
+
+export interface GeneralChatRequest {
+  message: string;
+  context?: {
+    user_plants?: Plant[];
+    recent_tasks?: Task[];
+  };
+}
+
+export interface GeneralChatResponse {
+  response: string;
+  suggested_actions?: string[];
+  related_plants?: string[];
 }
 
 // ============================================================================

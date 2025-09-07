@@ -4,8 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useSupabaseAuth } from '@/lib/auth/supabase-auth';
 import { useThemeColors } from '@/lib/theme/hooks';
-import { cn } from '@/lib/utils';
-import { MobileCheckbox, Label } from '@/components/ui';
+import { MobileCheckbox, Label, useToast } from '@/components/ui';
 import { 
   AuthGuard, 
   FormInput, 
@@ -23,11 +22,12 @@ interface LoginFormData extends Record<string, unknown> {
 export default function LoginPage() {
   const { login } = useSupabaseAuth();
   const themeColors = useThemeColors();
+  const { showError, showSuccess } = useToast();
   
   const [showPassword, setShowPassword] = useState(false);
   const [generalError, setGeneralError] = useState<string>('');
 
-  const { data, errors, isSubmitting, setField, setErrors, handleSubmit } = useForm<LoginFormData>({
+  const { data, errors, isSubmitting, setField, handleSubmit } = useForm<LoginFormData>({
     initialData: {
       email: '',
       password: '',
@@ -49,11 +49,40 @@ export default function LoginPage() {
       return newErrors;
     },
     onSubmit: async (data) => {
-      const result = await login(data.email, data.password, data.rememberMe);
+      let result: { success: boolean; error?: string } | null = null;
       
-      if (!result.success) {
-        setGeneralError(result.error || 'Login failed');
-        throw new Error(result.error || 'Login failed');
+      try {
+        // Clear any previous errors
+        setGeneralError('');
+        
+        result = await login(data.email, data.password, data.rememberMe);
+        
+        if (!result.success) {
+          const errorMessage = result.error || 'Login failed. Please check your credentials and try again.';
+          setGeneralError(errorMessage);
+          
+          // Show different toast messages based on error type
+          if (errorMessage.includes('Account not found')) {
+            showError(errorMessage, 8000); // Show longer for signup guidance
+          } else {
+            showError(errorMessage);
+          }
+          
+          throw new Error(errorMessage);
+        }
+        
+        // Success - clear any errors and show success message
+        setGeneralError('');
+        showSuccess('Login successful! Welcome back.');
+      } catch (error) {
+        // Handle any unexpected errors
+        const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.';
+        setGeneralError(errorMessage);
+        // Only show toast if it's a new error (not from login result)
+        if (!result || result.success) {
+          showError(errorMessage);
+        }
+        throw error; // Re-throw to let the form handle the submission state
       }
     },
   });
@@ -79,11 +108,30 @@ export default function LoginPage() {
           </div>
 
           {generalError && (
-            <ErrorMessage 
-              message={generalError} 
-              onDismiss={() => setGeneralError('')}
-              dismissible
-            />
+            <div className="space-y-3">
+              <ErrorMessage 
+                message={generalError} 
+                onDismiss={() => setGeneralError('')}
+                dismissible
+              />
+              {generalError.includes('Account not found') && (
+                <div className="text-center p-3 bg-muted/50 rounded-lg border border-border">
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Don&apos;t have an account yet?
+                  </p>
+                  <Link 
+                    href="/signup" 
+                    className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-colors"
+                    style={{ 
+                      backgroundColor: themeColors.sage,
+                      color: 'white'
+                    }}
+                  >
+                    Create Account
+                  </Link>
+                </div>
+              )}
+            </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">

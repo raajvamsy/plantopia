@@ -2,107 +2,254 @@ import { supabase } from '../config';
 import type { Task, TaskInsert, TaskUpdate } from '@/types/api';
 
 export class TaskService {
-  // Get all tasks for a user
+  // Enhanced error handling wrapper
+  private static handleDatabaseError(error: unknown, operation: string): void {
+    const errorObj = error as { message?: string; code?: string; details?: string; hint?: string };
+    console.error(`❌ ${operation} error:`, {
+      message: errorObj?.message,
+      code: errorObj?.code,
+      details: errorObj?.details,
+      hint: errorObj?.hint
+    });
+  }
+
+  // Get all tasks for a user with enhanced error handling
   static async getUserTasks(userId: string, status?: string): Promise<Task[]> {
-    let query = supabase
-      .from('tasks')
-      .select('*')
-      .eq('user_id', userId);
+    try {
+      if (!userId) {
+        console.warn('⚠️  getUserTasks called with empty userId');
+        return [];
+      }
 
-    if (status) {
-      query = query.eq('status', status);
-    }
+      let query = supabase
+        .from('tasks')
+        .select('*')
+        .eq('user_id', userId);
 
-    const { data, error } = await query.order('due_date', { ascending: true });
+      if (status) {
+        query = query.eq('status', status);
+      }
 
-    if (error) {
-      console.error('Error fetching tasks:', error);
+      const { data, error } = await query.order('due_date', { ascending: true });
+
+      if (error) {
+        this.handleDatabaseError(error, 'Get user tasks');
+        return [];
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('❌ Exception in getUserTasks:', error);
       return [];
     }
-
-    return data;
   }
 
-  // Get task by ID
+  // Get task by ID with validation
   static async getTaskById(taskId: string): Promise<Task | null> {
-    const { data, error } = await supabase
-      .from('tasks')
-      .select('*')
-      .eq('id', taskId)
-      .single();
+    try {
+      if (!taskId) {
+        console.warn('⚠️  getTaskById called with empty taskId');
+        return null;
+      }
 
-    if (error) {
-      console.error('Error fetching task:', error);
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('id', taskId)
+        .single();
+
+      if (error) {
+        if ((error as { code?: string })?.code === 'PGRST116') {
+          console.log('ℹ️  No task found with ID:', taskId);
+          return null;
+        }
+        this.handleDatabaseError(error, 'Get task by ID');
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('❌ Exception in getTaskById:', error);
       return null;
     }
-
-    return data;
   }
 
-  // Create new task
+  // Enhanced task creation with validation
   static async createTask(taskData: Omit<TaskInsert, 'id'>): Promise<Task | null> {
-    const { data, error } = await supabase
-      .from('tasks')
-      .insert(taskData)
-      .select()
-      .single();
+    try {
+      // Validate required fields
+      if (!taskData.user_id || !taskData.title || !taskData.type) {
+        console.error('❌ createTask called with missing required fields:', taskData);
+        return null;
+      }
 
-    if (error) {
-      console.error('Error creating task:', error);
+      // Normalize data
+      const normalizedData = {
+        ...taskData,
+        title: taskData.title.trim(),
+        description: taskData.description?.trim() || null,
+      };
+
+      if (normalizedData.title.length === 0) {
+        console.error('❌ Task title cannot be empty');
+        return null;
+      }
+
+      if (normalizedData.title.length > 200) {
+        console.error('❌ Task title too long (max 200 characters)');
+        return null;
+      }
+
+      const { data, error } = await supabase
+        .from('tasks')
+        .insert(normalizedData)
+        .select()
+        .single();
+
+      if (error) {
+        this.handleDatabaseError(error, 'Create task');
+        return null;
+      }
+
+      console.log('✅ Task created successfully:', data.title);
+      return data;
+    } catch (error) {
+      console.error('❌ Exception in createTask:', error);
       return null;
     }
-
-    return data;
   }
 
-  // Update task
+  // Enhanced task update with validation
   static async updateTask(taskId: string, updates: TaskUpdate): Promise<Task | null> {
-    const { data, error } = await supabase
-      .from('tasks')
-      .update(updates)
-      .eq('id', taskId)
-      .select()
-      .single();
+    try {
+      if (!taskId) {
+        console.error('❌ updateTask called with empty taskId');
+        return null;
+      }
 
-    if (error) {
-      console.error('Error updating task:', error);
+      if (!updates || Object.keys(updates).length === 0) {
+        console.warn('⚠️  updateTask called with no updates');
+        return await this.getTaskById(taskId);
+      }
+
+      // Normalize update data
+      const normalizedUpdates: TaskUpdate = { ...updates };
+      
+      if (updates.title) {
+        normalizedUpdates.title = updates.title.trim();
+        if (normalizedUpdates.title.length === 0) {
+          console.error('❌ Task title cannot be empty');
+          return null;
+        }
+        if (normalizedUpdates.title.length > 200) {
+          console.error('❌ Task title too long (max 200 characters)');
+          return null;
+        }
+      }
+      
+      if (updates.description !== undefined) {
+        normalizedUpdates.description = updates.description?.trim() || null;
+      }
+
+      const { data, error } = await supabase
+        .from('tasks')
+        .update(normalizedUpdates)
+        .eq('id', taskId)
+        .select()
+        .single();
+
+      if (error) {
+        this.handleDatabaseError(error, 'Update task');
+        return null;
+      }
+
+      console.log('✅ Task updated successfully:', data.title);
+      return data;
+    } catch (error) {
+      console.error('❌ Exception in updateTask:', error);
       return null;
     }
-
-    return data;
   }
 
-  // Delete task
-  static async deleteTask(taskId: string): Promise<boolean> {
-    const { error } = await supabase
-      .from('tasks')
-      .delete()
-      .eq('id', taskId);
+  // Enhanced task deletion with validation
+  static async deleteTask(taskId: string, userId?: string): Promise<boolean> {
+    try {
+      if (!taskId) {
+        console.warn('⚠️  deleteTask called with empty taskId');
+        return false;
+      }
 
-    if (error) {
-      console.error('Error deleting task:', error);
+      let query = supabase
+        .from('tasks')
+        .delete()
+        .eq('id', taskId);
+
+      // If userId is provided, ensure user can only delete their own tasks
+      if (userId) {
+        query = query.eq('user_id', userId);
+      }
+
+      const { error } = await query;
+
+      if (error) {
+        this.handleDatabaseError(error, 'Delete task');
+        return false;
+      }
+
+      console.log('✅ Task deleted successfully:', taskId);
+      return true;
+    } catch (error) {
+      console.error('❌ Exception in deleteTask:', error);
       return false;
     }
-
-    return true;
   }
 
-  // Mark task as completed
-  static async completeTask(taskId: string): Promise<boolean> {
-    const { error } = await supabase
-      .from('tasks')
-      .update({ 
-        status: 'completed',
-        completed_at: new Date().toISOString()
-      })
-      .eq('id', taskId);
+  // Enhanced task completion with validation
+  static async completeTask(taskId: string, userId?: string): Promise<boolean> {
+    try {
+      if (!taskId) {
+        console.warn('⚠️  completeTask called with empty taskId');
+        return false;
+      }
 
-    if (error) {
-      console.error('Error completing task:', error);
+      // If userId is provided, verify the task belongs to the user
+      if (userId) {
+        const task = await this.getTaskById(taskId);
+        if (!task) {
+          console.error('❌ Task not found:', taskId);
+          return false;
+        }
+        
+        if (task.user_id !== userId) {
+          console.error('❌ Task does not belong to user:', { taskId, userId });
+          return false;
+        }
+        
+        if (task.status === 'completed') {
+          console.log('ℹ️  Task already completed:', taskId);
+          return true;
+        }
+      }
+
+      const { error } = await supabase
+        .from('tasks')
+        .update({ 
+          status: 'completed',
+          completed_at: new Date().toISOString()
+        })
+        .eq('id', taskId);
+
+      if (error) {
+        this.handleDatabaseError(error, 'Complete task');
+        return false;
+      }
+
+      console.log('✅ Task completed successfully:', taskId);
+      return true;
+    } catch (error) {
+      console.error('❌ Exception in completeTask:', error);
       return false;
     }
-
-    return true;
   }
 
   // Mark task as in progress

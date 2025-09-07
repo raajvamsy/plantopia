@@ -5,7 +5,7 @@ import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface EmptyStateProps {
-  icon?: LucideIcon | React.ReactNode;
+  icon?: LucideIcon;
   title: string;
   description?: string;
   action?: React.ReactNode;
@@ -31,13 +31,7 @@ export function EmptyState({
     <div className={cn('flex flex-col items-center justify-center text-center py-8 px-4', className)}>
       {Icon && (
         <div className={cn('mb-4', iconClassName)}>
-          {React.isValidElement(Icon) ? (
-            Icon
-          ) : typeof Icon === 'function' ? (
-            <Icon className="h-12 w-12 text-muted-foreground" />
-          ) : (
-            Icon
-          )}
+          <Icon className="h-12 w-12 text-muted-foreground" />
         </div>
       )}
       

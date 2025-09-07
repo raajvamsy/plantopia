@@ -38,25 +38,31 @@ export function ErrorMessage({
   return (
     <div
       className={cn(
-        'rounded-lg p-3 text-sm border flex items-start gap-2',
+        'rounded-lg p-4 text-sm border flex items-start gap-3 animate-in slide-in-from-top-2 duration-300',
+        'shadow-sm',
         typeClasses[type],
         className
       )}
     >
       <AlertCircle 
         className={cn(
-          'h-4 w-4 flex-shrink-0 mt-0.5',
+          'h-5 w-5 flex-shrink-0 mt-0.5',
           iconClasses[type],
           iconClassName
         )}
       />
-      <span className={cn('flex-1', messageClassName)}>
+      <span className={cn('flex-1 font-medium leading-relaxed', messageClassName)}>
         {message}
       </span>
       {dismissible && onDismiss && (
         <button
           onClick={onDismiss}
-          className="flex-shrink-0 hover:opacity-70 transition-opacity"
+          className={cn(
+            'flex-shrink-0 hover:opacity-70 transition-all duration-200',
+            'p-1 rounded-full hover:bg-black/5',
+            iconClasses[type]
+          )}
+          aria-label="Dismiss error"
         >
           <X className="h-4 w-4" />
         </button>

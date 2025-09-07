@@ -4,6 +4,7 @@ import "./globals.css";
 import { PlantopiaThemeProvider } from "@/lib/theme";
 import { SupabaseAuthProvider } from "@/lib/auth/supabase-auth";
 import { LoadingProvider, NavigationLoader } from "@/lib/loading";
+import { ToastProvider } from "@/components/ui";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -96,8 +97,10 @@ export default function RootLayout({
         <PlantopiaThemeProvider defaultMode="light">
           <LoadingProvider>
             <SupabaseAuthProvider>
-              <NavigationLoader />
-              {children}
+              <ToastProvider>
+                <NavigationLoader />
+                {children}
+              </ToastProvider>
             </SupabaseAuthProvider>
           </LoadingProvider>
         </PlantopiaThemeProvider>
