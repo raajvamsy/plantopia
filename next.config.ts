@@ -20,6 +20,10 @@ const nextConfig: NextConfig = {
   // Ensure proper asset generation and prevent chunk loading errors
   generateEtags: false,
   poweredByHeader: false,
+  // Optimize for deployment
+  trailingSlash: false,
+  // Enable compression
+  compress: true,
 };
 
 export default nextConfig;
