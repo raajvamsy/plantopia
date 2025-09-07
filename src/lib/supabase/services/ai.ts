@@ -1,4 +1,5 @@
 import { supabase } from '../config';
+import { GeminiAIService } from '@/lib/ai/gemini-service';
 import type { 
   AIInteraction, 
   AIInteractionInsert, 
@@ -354,9 +355,6 @@ export class AIService {
     }
   }
 
-  // PLACEHOLDER METHODS for future Gemini 2.5 Flash Lite integration
-  // These methods will be implemented when the AI service is ready
-
   // Plant identification using AI
   static async identifyPlant(
     userId: string,
@@ -365,33 +363,42 @@ export class AIService {
     try {
       console.log('🤖 Plant identification requested for user:', userId);
       
-      // TODO: Integrate with Gemini 2.5 Flash Lite API
-      // For now, return a mock response
-      const mockResponse: PlantIdentificationResponse = {
-        species: 'Unknown Plant',
-        confidence: 0.5,
-        care_instructions: ['Provide adequate sunlight', 'Water regularly', 'Monitor for pests'],
-        common_names: ['Unknown'],
-        scientific_name: 'Plantae species',
-        family: 'Unknown Family',
-        difficulty_level: 'medium'
-      };
+      // Initialize Gemini service if not already done
+      if (!GeminiAIService.isReady()) {
+        const initialized = GeminiAIService.initialize();
+        if (!initialized) {
+          console.error('❌ Failed to initialize Gemini AI service');
+          return null;
+        }
+      }
+
+      // Call Gemini AI for plant identification
+      const aiResponse = await GeminiAIService.identifyPlant(request);
+      
+      if (!aiResponse) {
+        console.error('❌ Failed to get AI response for plant identification');
+        return null;
+      }
+
+      // Create a comprehensive AI response message
+      const aiResponseMessage = `Identified as ${aiResponse.species} (${aiResponse.scientific_name}) with ${Math.round(aiResponse.confidence * 100)}% confidence. Family: ${aiResponse.family}. Difficulty: ${aiResponse.difficulty_level}. Care instructions: ${aiResponse.care_instructions.join(', ')}.`;
 
       const interaction = await this.createAIInteraction({
         user_id: userId,
         interaction_type: 'plant_identification',
         user_message: request.user_message || 'Plant identification request',
-        ai_response: `Identified as ${mockResponse.species} with ${Math.round(mockResponse.confidence * 100)}% confidence`,
-        confidence_score: mockResponse.confidence,
+        ai_response: aiResponseMessage,
+        confidence_score: aiResponse.confidence,
         image_url: request.image_url,
-        metadata: mockResponse as unknown as Record<string, unknown>
+        metadata: aiResponse as unknown as Record<string, unknown>
       });
 
       if (!interaction) {
         return null;
       }
 
-      return { interaction, response: mockResponse };
+      console.log('✅ Plant identification completed successfully');
+      return { interaction, response: aiResponse };
     } catch (error) {
       console.error('❌ Exception in identifyPlant:', error);
       return null;
@@ -406,35 +413,42 @@ export class AIService {
     try {
       console.log('🤖 Care advice requested for user:', userId);
       
-      // TODO: Integrate with Gemini 2.5 Flash Lite API
-      // For now, return a mock response
-      const mockResponse: CareAdviceResponse = {
-        advice: 'Based on your description, your plant may need more consistent watering and better drainage.',
-        priority: 'medium',
-        recommended_actions: [
-          'Check soil moisture regularly',
-          'Ensure proper drainage',
-          'Monitor for signs of overwatering'
-        ],
-        timeline: 'Monitor for 1-2 weeks',
-        confidence: 0.7
-      };
+      // Initialize Gemini service if not already done
+      if (!GeminiAIService.isReady()) {
+        const initialized = GeminiAIService.initialize();
+        if (!initialized) {
+          console.error('❌ Failed to initialize Gemini AI service');
+          return null;
+        }
+      }
+
+      // Call Gemini AI for care advice
+      const aiResponse = await GeminiAIService.getCareAdvice(request);
+      
+      if (!aiResponse) {
+        console.error('❌ Failed to get AI response for care advice');
+        return null;
+      }
+
+      // Create a comprehensive AI response message
+      const aiResponseMessage = `${aiResponse.advice} Priority: ${aiResponse.priority}. Timeline: ${aiResponse.timeline}. Recommended actions: ${aiResponse.recommended_actions.join(', ')}.`;
 
       const interaction = await this.createAIInteraction({
         user_id: userId,
         plant_id: request.plant_id || null,
         interaction_type: 'care_advice',
         user_message: request.user_message,
-        ai_response: mockResponse.advice,
-        confidence_score: mockResponse.confidence,
-        metadata: mockResponse as unknown as Record<string, unknown>
+        ai_response: aiResponseMessage,
+        confidence_score: aiResponse.confidence,
+        metadata: aiResponse as unknown as Record<string, unknown>
       });
 
       if (!interaction) {
         return null;
       }
 
-      return { interaction, response: mockResponse };
+      console.log('✅ Care advice completed successfully');
+      return { interaction, response: aiResponse };
     } catch (error) {
       console.error('❌ Exception in getCareAdvice:', error);
       return null;
@@ -449,41 +463,43 @@ export class AIService {
     try {
       console.log('🤖 Disease detection requested for user:', userId);
       
-      // TODO: Integrate with Gemini 2.5 Flash Lite API
-      // For now, return a mock response
-      const mockResponse: DiseaseDetectionResponse = {
-        disease_name: 'Possible fungal infection',
-        confidence: 0.6,
-        severity: 'moderate',
-        treatment_steps: [
-          'Remove affected leaves',
-          'Improve air circulation',
-          'Apply fungicide if necessary',
-          'Reduce watering frequency'
-        ],
-        prevention_tips: [
-          'Avoid overhead watering',
-          'Ensure good air circulation',
-          'Remove dead plant material promptly'
-        ],
-        is_contagious: true
-      };
+      // Initialize Gemini service if not already done
+      if (!GeminiAIService.isReady()) {
+        const initialized = GeminiAIService.initialize();
+        if (!initialized) {
+          console.error('❌ Failed to initialize Gemini AI service');
+          return null;
+        }
+      }
+
+      // Call Gemini AI for disease detection
+      const aiResponse = await GeminiAIService.detectDisease(request);
+      
+      if (!aiResponse) {
+        console.error('❌ Failed to get AI response for disease detection');
+        return null;
+      }
+
+      // Create a comprehensive AI response message
+      const contagiousText = aiResponse.is_contagious ? 'Contagious - isolate plant' : 'Not contagious';
+      const aiResponseMessage = `Detected: ${aiResponse.disease_name} (${aiResponse.severity} severity). ${contagiousText}. Treatment: ${aiResponse.treatment_steps.join(', ')}. Prevention: ${aiResponse.prevention_tips.join(', ')}.`;
 
       const interaction = await this.createAIInteraction({
         user_id: userId,
         interaction_type: 'disease_diagnosis',
         user_message: request.symptoms_description,
-        ai_response: `Detected: ${mockResponse.disease_name} (${mockResponse.severity} severity)`,
-        confidence_score: mockResponse.confidence,
+        ai_response: aiResponseMessage,
+        confidence_score: aiResponse.confidence,
         image_url: request.image_url,
-        metadata: mockResponse as unknown as Record<string, unknown>
+        metadata: aiResponse as unknown as Record<string, unknown>
       });
 
       if (!interaction) {
         return null;
       }
 
-      return { interaction, response: mockResponse };
+      console.log('✅ Disease detection completed successfully');
+      return { interaction, response: aiResponse };
     } catch (error) {
       console.error('❌ Exception in detectDisease:', error);
       return null;
@@ -498,32 +514,44 @@ export class AIService {
     try {
       console.log('🤖 General chat requested for user:', userId);
       
-      // TODO: Integrate with Gemini 2.5 Flash Lite API
-      // For now, return a mock response
-      const mockResponse: GeneralChatResponse = {
-        response: "I'm here to help with your plant care questions! Feel free to ask about watering, lighting, fertilizing, or any plant-related concerns.",
-        suggested_actions: [
-          'Check your plants for watering needs',
-          'Review your plant care schedule',
-          'Take photos of any concerning symptoms'
-        ],
-        related_plants: request.context?.user_plants?.map(p => p.name) || []
-      };
+      // Initialize Gemini service if not already done
+      if (!GeminiAIService.isReady()) {
+        const initialized = GeminiAIService.initialize();
+        if (!initialized) {
+          console.error('❌ Failed to initialize Gemini AI service');
+          return null;
+        }
+      }
+
+      // Call Gemini AI for general chat
+      const aiResponse = await GeminiAIService.generalChat(request);
+      
+      if (!aiResponse) {
+        console.error('❌ Failed to get AI response for general chat');
+        return null;
+      }
+
+      // Create AI response message
+      let aiResponseMessage = aiResponse.response;
+      if (aiResponse.suggested_actions && aiResponse.suggested_actions.length > 0) {
+        aiResponseMessage += ` Suggested actions: ${aiResponse.suggested_actions.join(', ')}.`;
+      }
 
       const interaction = await this.createAIInteraction({
         user_id: userId,
         interaction_type: 'general_chat',
         user_message: request.message,
-        ai_response: mockResponse.response,
-        confidence_score: 0.8,
-        metadata: mockResponse as unknown as Record<string, unknown>
+        ai_response: aiResponseMessage,
+        confidence_score: 0.9, // General chat typically has high confidence
+        metadata: aiResponse as unknown as Record<string, unknown>
       });
 
       if (!interaction) {
         return null;
       }
 
-      return { interaction, response: mockResponse };
+      console.log('✅ General chat completed successfully');
+      return { interaction, response: aiResponse };
     } catch (error) {
       console.error('❌ Exception in generalChat:', error);
       return null;

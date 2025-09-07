@@ -10,7 +10,11 @@ import {
   Droplets, 
   Leaf as LeafIcon,
   Trophy,
-  CloudSun
+  CloudSun,
+  Bot,
+  Camera,
+  AlertTriangle,
+  Lightbulb
 } from 'lucide-react';
 import PlantCard from '@/components/ui/plant-card';
 import TaskItem from '@/components/ui/task-item';
@@ -80,7 +84,7 @@ export default function DashboardPage() {
         </div>
 
         {/* My Plants Section */}
-        <section className="mb-6 sm:mb-8">
+        <section className="mb-6 sm:gap-8 sm:mb-8">
           <SectionHeader
             title="My Plants"
             action={
@@ -95,12 +99,14 @@ export default function DashboardPage() {
               </button>
             }
           />
-          <div className="overflow-x-auto">
-            <div className="flex gap-3 sm:gap-4 px-1 sm:px-4 pb-2 min-w-max">
-              {isLoading ? (
-                <LeafSpinner size="lg" showText={true} text="Loading plants..." />
-              ) : plants.length > 0 ? (
-                plants.map((plant) => (
+          {isLoading ? (
+            <div className="flex justify-center">
+              <LeafSpinner size="lg" showText={true} text="Loading plants..." />
+            </div>
+          ) : plants.length > 0 ? (
+            <div className="overflow-x-auto">
+              <div className="flex gap-3 sm:gap-4 px-1 sm:px-4 pb-2 min-w-max">
+                {plants.map((plant) => (
                   <div key={plant.id} className="flex-shrink-0">
                     <PlantCard
                       id={plant.id}
@@ -113,23 +119,83 @@ export default function DashboardPage() {
                       className="w-56 sm:w-64"
                     />
                   </div>
-                ))
-              ) : (
-                <EmptyState
-                  icon={LeafIcon}
-                  title="No plants yet"
-                  description="Start growing your garden!"
-                  action={
-                    <button
-                      onClick={() => router.push('/plants')}
-                      className="mt-3 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                    >
-                      Add Your First Plant
-                    </button>
-                  }
-                />
-              )}
+                ))}
+              </div>
             </div>
+          ) : (
+            <div className="flex justify-center">
+              <EmptyState
+                icon={LeafIcon}
+                title="No plants yet"
+                description="Start growing your garden!"
+                action={
+                  <button
+                    onClick={() => router.push('/plants')}
+                    className="mt-3 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                  >
+                    Add Your First Plant
+                  </button>
+                }
+              />
+            </div>
+          )}
+        </section>
+
+        {/* AI Quick Access */}
+        <section className="mb-6 sm:mb-8">
+          <SectionHeader title="AI Assistant" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 px-1 sm:px-0">
+            <button
+              onClick={() => router.push('/ai?tab=chat')}
+              className="p-4 bg-white rounded-lg border border-sage-200 hover:border-sage-300 hover:bg-sage-50 transition-colors text-left"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Bot className="h-4 w-4 text-blue-600" />
+                </div>
+                <span className="font-medium text-sage-900 text-sm">Chat</span>
+              </div>
+              <p className="text-xs text-sage-600">Ask plant care questions</p>
+            </button>
+
+            <button
+              onClick={() => router.push('/ai?tab=identify')}
+              className="p-4 bg-white rounded-lg border border-sage-200 hover:border-sage-300 hover:bg-sage-50 transition-colors text-left"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <Camera className="h-4 w-4 text-green-600" />
+                </div>
+                <span className="font-medium text-sage-900 text-sm">Identify</span>
+              </div>
+              <p className="text-xs text-sage-600">Identify plant species</p>
+            </button>
+
+            <button
+              onClick={() => router.push('/ai?tab=disease')}
+              className="p-4 bg-white rounded-lg border border-sage-200 hover:border-sage-300 hover:bg-sage-50 transition-colors text-left"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 bg-red-100 rounded-lg">
+                  <AlertTriangle className="h-4 w-4 text-red-600" />
+                </div>
+                <span className="font-medium text-sage-900 text-sm">Disease</span>
+              </div>
+              <p className="text-xs text-sage-600">Check plant health</p>
+            </button>
+
+            <button
+              onClick={() => router.push('/ai?tab=advice')}
+              className="p-4 bg-white rounded-lg border border-sage-200 hover:border-sage-300 hover:bg-sage-50 transition-colors text-left"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 bg-yellow-100 rounded-lg">
+                  <Lightbulb className="h-4 w-4 text-yellow-600" />
+                </div>
+                <span className="font-medium text-sage-900 text-sm">Advice</span>
+              </div>
+              <p className="text-xs text-sage-600">Get care recommendations</p>
+            </button>
           </div>
         </section>
 
@@ -159,9 +225,9 @@ export default function DashboardPage() {
             </div>
           </section>
 
-          {/* Challenges */}
+          {/* Achievements */}
           <section>
-            <SectionHeader title="Challenges" />
+            <SectionHeader title="Achievements" />
             <div className="space-y-3 px-1 sm:px-0">
               {challenges.length > 0 ? (
                 challenges.map((challenge) => (
@@ -169,14 +235,14 @@ export default function DashboardPage() {
                     key={challenge.id}
                     icon={Trophy}
                     title={challenge.title || 'Achievement'}
-                    description={challenge.description || 'Complete this challenge to earn rewards'}
+                    description={challenge.description || 'Complete this achievement to earn rewards'}
                     completed={challenge.completed}
-                    onClick={() => console.log(`Clicked on challenge: ${challenge.title}`)}
+                    onClick={() => console.log(`Clicked on achievement: ${challenge.title}`)}
                   />
                 ))
               ) : (
                 <EmptyState
-                  title="No challenges yet"
+                  title="No achievements yet"
                   description="Keep growing plants to unlock them!"
                 />
               )}
@@ -184,11 +250,6 @@ export default function DashboardPage() {
           </section>
         </div>
 
-        {/* Progress Section
-        <section className="bg-card p-4 sm:p-6 rounded-2xl shadow-sm border border-border mx-1 sm:mx-0">
-          <SectionHeader title="Reward Bloom Progress" />
-          <ProgressBar value={60} />
-        </section> */}
       </PageLayout>
     </AuthGuard>
   );

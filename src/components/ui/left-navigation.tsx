@@ -15,7 +15,8 @@ import {
   Leaf,
   Settings,
   LogOut,
-  MessageCircle
+  MessageCircle,
+  Bot
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -62,6 +63,13 @@ const navItems: NavItem[] = [
     label: 'Messages',
     icon: MessageCircle,
     href: '/messages',
+    section: 'main'
+  },
+  {
+    id: 'ai',
+    label: 'AI Assistant',
+    icon: Bot,
+    href: '/ai',
     section: 'main'
   },
   // Action items
